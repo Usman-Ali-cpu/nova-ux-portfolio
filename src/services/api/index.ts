@@ -7,3 +7,4 @@ export { registrationsApi } from './registrationsService';
 export { businessPostsApi } from './businessPostsService';
 export { fileUploadApi } from './fileUploadService';
 export { emailVerificationApi } from './emailVerificationService';
+export { whatsappApi } from './whatsappService';

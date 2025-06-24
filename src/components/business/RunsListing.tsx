@@ -6,7 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDate } from '@/utils/helpers';
 import { RunEvent, RunRegistration } from '@/types';
-import { Users, Download, Edit, CalendarPlus } from 'lucide-react';
+import { Users, Download, Edit, CalendarPlus, MessageCircle } from 'lucide-react';
+import WhatsAppGroupInvite from '@/components/runs/WhatsAppGroupInvite';
 
 interface RunsListingProps {
   runs: RunEvent[];
@@ -80,7 +81,7 @@ const RunsListing: React.FC<RunsListingProps> = ({
                     {formatDate(run.date)} • {run.time} • {run.distance}km • {run.location}
                   </p>
                   
-                  <div className="flex gap-2 pt-1">
+                  <div className="flex gap-2 pt-1 flex-wrap">
                     <Button variant="outline" size="sm" asChild>
                       <Link to={`/runs/${run.id}`}>
                         <Users className="mr-2 h-4 w-4" />
@@ -103,7 +104,12 @@ const RunsListing: React.FC<RunsListingProps> = ({
                   </div>
                 </div>
                 
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
+                  <WhatsAppGroupInvite 
+                    participants={runParticipants[run.id] || []}
+                    runTitle={run.title}
+                    size="sm"
+                  />
                   <Button 
                     variant="outline" 
                     size="sm"
