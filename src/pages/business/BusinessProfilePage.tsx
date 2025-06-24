@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, MapPin, Globe, Instagram, Calendar, Users, Edit } from 'lucide-react';
+import { User, MapPin, Calendar, Users, Edit } from 'lucide-react';
 import BusinessProfileEditDialog from '@/components/business/BusinessProfileEditDialog';
 import BusinessFeed from '@/components/business/BusinessFeed';
 import BusinessEventHistory from '@/components/business/BusinessEventHistory';
