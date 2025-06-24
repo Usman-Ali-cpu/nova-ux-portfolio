@@ -98,7 +98,7 @@ const BusinessProfilePage = () => {
                     <p className="text-gray-600">
                       {user.businessDetails?.businessName ? 
                         `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
-                        'We're passionate about building community through running and bringing people together for healthy, active lifestyles.'
+                        'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
                       }
                     </p>
                   </div>
