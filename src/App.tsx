@@ -11,6 +11,7 @@ import RunsPage from "./pages/RunsPage";
 import RunDetailPage from "./pages/RunDetailPage";
 import MyRunsPage from "./pages/MyRunsPage";
 import BusinessHomePage from "./pages/business/BusinessHomePage";
+import BusinessProfilePage from "./pages/business/BusinessProfilePage";
 import CreateRunPage from "./pages/business/CreateRunPage";
 import AllParticipantsPage from "./pages/business/AllParticipantsPage";
 import LoginPage from "./pages/auth/LoginPage";
@@ -92,6 +93,14 @@ const AppRoutes = () => {
         element={
           <AuthRoute requiredRole="business">
             <BusinessHomePage />
+          </AuthRoute>
+        } 
+      />
+      <Route 
+        path="/business/profile" 
+        element={
+          <AuthRoute requiredRole="business">
+            <BusinessProfilePage />
           </AuthRoute>
         } 
       />

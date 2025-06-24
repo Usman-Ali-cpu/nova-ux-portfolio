@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import BusinessWelcomeHeader from '@/components/business/BusinessWelcomeHeader';
+import BusinessProfileCard from '@/components/business/BusinessProfileCard';
 import CreateRunCTA from '@/components/business/CreateRunCTA';
 import RecentSignupsWidget from '@/components/business/RecentSignupsWidget';
 import PromotionReminder from '@/components/business/PromotionReminder';
@@ -48,6 +49,9 @@ const BusinessHomePage = () => {
       
       <main className="flex-1 py-8">
         <div className="app-container">
+          {/* Business Profile Card - at the very top */}
+          {user && <BusinessProfileCard user={user} />}
+          
           {/* Header / Welcome */}
           <BusinessWelcomeHeader 
             businessName={businessName}

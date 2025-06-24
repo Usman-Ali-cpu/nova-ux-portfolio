@@ -8,6 +8,7 @@ export { usersApi } from './usersService';
 export { eventsApi } from './eventsService';
 export { registrationsApi } from './registrationsService';
 export { fileUploadApi } from './fileUploadService';
+export { businessPostsApi } from './businessPostsService';
 
 // Import the services for the legacy compatibility object
 import { authApi } from './authService';
@@ -15,6 +16,7 @@ import { usersApi } from './usersService';
 import { eventsApi } from './eventsService';
 import { registrationsApi } from './registrationsService';
 import { fileUploadApi } from './fileUploadService';
+import { businessPostsApi } from './businessPostsService';
 
 // Legacy compatibility - unified API object
 export const xanoApi = {
@@ -43,4 +45,10 @@ export const xanoApi = {
   
   // File upload methods
   uploadFile: fileUploadApi.uploadFile.bind(fileUploadApi),
+  
+  // Business posts methods
+  getBusinessPosts: businessPostsApi.getBusinessPosts.bind(businessPostsApi),
+  createBusinessPost: businessPostsApi.createBusinessPost.bind(businessPostsApi),
+  updateBusinessPost: businessPostsApi.updateBusinessPost.bind(businessPostsApi),
+  deleteBusinessPost: businessPostsApi.deleteBusinessPost.bind(businessPostsApi),
 };

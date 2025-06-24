@@ -10,6 +10,9 @@ export interface XanoUser {
   business_latitude?: number;
   business_longitude?: number;
   business_phone?: string; // New field for business contact phone
+  business_description?: string; // New field for business description
+  business_website?: string; // New field for business website
+  business_instagram?: string; // New field for business instagram
   created_at?: string;
 }
 
@@ -45,6 +48,17 @@ export interface XanoRegistration {
   // Legacy fields for backwards compatibility
   runner_name?: string; // User name populated from registration endpoint
   runner_email?: string; // User email populated from registration endpoint
+}
+
+// New type for business feed posts
+export interface XanoBusinessPost {
+  id: number;
+  business_id: number;
+  title: string;
+  content: string;
+  post_image?: string;
+  created_at: string;
+  business_name?: string;
 }
 
 // Simplified to match actual Xano API response - only returns authToken
