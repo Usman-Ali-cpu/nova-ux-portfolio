@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,6 +25,17 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				pacers: {
+					blue: '#003444',
+					'blue-light': '#00546d',
+					'blue-dark': '#002a38',
+					accent: '#FF9F1C',
+					secondary: '#2EC4B6',
+					success: '#4BB543',
+					warning: '#F9A826',
+					error: '#E73F5D',
+					gray: '#F3F4F6',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -84,11 +96,29 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-light': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.8' }
+				},
+				'track-spin': {
+					from: { transform: 'rotate(0deg)' },
+					to: { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-light': 'pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'track-spin': 'track-spin 2s linear infinite'
+			},
+			fontFamily: {
+				'sans': ['Syne', 'ui-sans-serif', 'system-ui'],
+			},
+			fontWeight: {
+				'normal': '400',
+				'semibold': '600',
+				'bold': '700'
 			}
 		}
 	},
