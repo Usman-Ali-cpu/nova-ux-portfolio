@@ -1,4 +1,3 @@
-
 // Types for Xano responses
 export interface XanoUser {
   id: number;
@@ -13,6 +12,8 @@ export interface XanoUser {
   business_description?: string; // New field for business description
   business_website?: string; // New field for business website
   business_instagram?: string; // New field for business instagram
+  is_active?: boolean; // New field for email verification status
+  activation_token?: string; // New field for email verification token
   created_at?: string;
 }
 

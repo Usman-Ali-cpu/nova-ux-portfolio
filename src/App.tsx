@@ -15,6 +15,7 @@ import BusinessProfilePage from "./pages/business/BusinessProfilePage";
 import CreateRunPage from "./pages/business/CreateRunPage";
 import AllParticipantsPage from "./pages/business/AllParticipantsPage";
 import LoginPage from "./pages/auth/LoginPage";
+import EmailVerificationPage from "./pages/auth/EmailVerificationPage";
 import UserHomePage from "./pages/UserHomePage";
 import NotFound from "./pages/NotFound";
 import ProfilePage from "./pages/ProfilePage";
@@ -121,6 +122,7 @@ const AppRoutes = () => {
         } 
       />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/verify-email" element={<EmailVerificationPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

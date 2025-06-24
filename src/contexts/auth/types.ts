@@ -7,6 +7,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  isActive?: boolean; // New field for email verification status
   businessDetails?: {
     businessName: string;
     businessLocation: string;

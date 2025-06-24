@@ -1,5 +1,5 @@
-
-import { XanoEvent, XanoUser } from '@/services/api/types';
+import { XanoUser, XanoEvent, XanoRegistration, XanoBusinessPost } from './api/types';
+import { User } from '@/contexts/auth/types';
 import { RunEvent } from '@/types';
 import { format } from 'date-fns';
 
@@ -99,26 +99,28 @@ export const transformXanoEvent = (xanoEvent: XanoEvent): RunEvent => {
 };
 
 // Transform Xano user to our User format
-export const transformXanoUser = (xanoUser: XanoUser) => {
-  console.log('Transforming Xano user:', xanoUser);
+export const transformXanoUser = (xanoUser: XanoUser): User => {
+  console.log('transformXanoUser: Input XanoUser:', xanoUser);
   
-  const transformedUser = {
+  const transformed: User = {
     id: xanoUser.id.toString(),
-    name: xanoUser.name,
     email: xanoUser.email,
-    role: xanoUser.role as 'business' | 'runner',
-    unreadMessages: 0, // Default to 0 since we removed messaging functionality
-    businessDetails: xanoUser.role === 'business' ? {
+    name: xanoUser.name,
+    role: xanoUser.role,
+    isActive: xanoUser.is_active, // Add email verification status
+  };
+
+  // Add business details if the user is a business
+  if (xanoUser.role === 'business') {
+    transformed.businessDetails = {
       businessName: xanoUser.business_name || '',
       businessLocation: xanoUser.business_location || '',
-      businessPhone: xanoUser.business_phone || '', // Include business phone
-      latitude: xanoUser.business_latitude,
-      longitude: xanoUser.business_longitude
-    } : undefined
-  };
-  
-  console.log('Transformed user:', transformedUser);
-  return transformedUser;
+      businessPhone: xanoUser.business_phone,
+    };
+  }
+
+  console.log('transformXanoUser: Transformed User:', transformed);
+  return transformed;
 };
 
 // Transform our RunEvent to Xano event format

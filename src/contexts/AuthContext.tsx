@@ -50,7 +50,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('AuthContext.login error:', error);
-      toast.error('Login failed. Please check your credentials.');
+      if (error instanceof Error && error.message.includes('verify your email')) {
+        toast.error(error.message);
+        navigate('/verify-email', { state: { email } });
+      } else {
+        toast.error('Login failed. Please check your credentials.');
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -75,24 +80,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       console.log('Calling authService.signup...');
-      const user = await authService.signup(name, email, password, role, businessDetails);
-      console.log('AuthContext.signup successful, user:', user);
-      console.log('Setting user state and localStorage...');
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
+      const result = await authService.signup(name, email, password, role, businessDetails);
+      console.log('AuthContext.signup successful, result:', result);
       
-      console.log('User state set, showing success toast...');
-      toast.success('Account created successfully!');
-      
-      // Redirect based on user role
-      console.log('Redirecting user based on role:', user.role);
-      if (user.role === 'business') {
-        console.log('Redirecting business user to /business/home');
-        navigate('/business/home');
-      } else {
-        console.log('Redirecting runner user to /user-home');
-        navigate('/user-home');
+      if (result.requiresVerification) {
+        console.log('Email verification required, redirecting...');
+        toast.success('Account created! Please check your email to verify your account.');
+        navigate('/verify-email', { state: { email: result.email } });
       }
+      
+      console.log('=== SIGNUP FORM SUBMISSION COMPLETED ===');
     } catch (error) {
       console.error('AuthContext.signup error:', error);
       if (error instanceof Error) {
