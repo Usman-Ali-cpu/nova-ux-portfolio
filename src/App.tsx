@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import AuthRoute from "./components/auth/AuthRoute";
 import Index from "./pages/Index";
 import RunsPage from "./pages/RunsPage";
 import RunDetailPage from "./pages/RunDetailPage";
+import RunParticipantsPage from "./pages/RunParticipantsPage";
 import MyRunsPage from "./pages/MyRunsPage";
 import BusinessHomePage from "./pages/business/BusinessHomePage";
 import BusinessProfilePage from "./pages/business/BusinessProfilePage";
@@ -66,6 +66,7 @@ const AppRoutes = () => {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/runs" element={<RunsPage />} />
       <Route path="/runs/:id" element={<RunDetailPage />} />
+      <Route path="/runs/:id/participants" element={<RunParticipantsPage />} />
       <Route path="/business/:businessId/profile" element={<PublicBusinessProfilePage />} />
       <Route 
         path="/user-home" 

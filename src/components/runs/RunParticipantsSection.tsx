@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Users } from 'lucide-react';
 import { getRemainingSpots } from '@/utils/helpers';
 import { RunEvent } from '@/types';
 import { registrationService } from '@/services/registrationService';
@@ -49,6 +51,16 @@ const RunParticipantsSection: React.FC<RunParticipantsSectionProps> = ({ run, re
             {!isLoading && remainingSpots !== null && ` · ${remainingSpots} spots left`}
           </span>
         </div>
+        
+        {currentParticipants > 0 && (
+          <Link 
+            to={`/runs/${run.id}/participants`}
+            className="flex items-center gap-2 text-pacers-blue hover:underline text-sm"
+          >
+            <Users className="h-4 w-4" />
+            View All Participants
+          </Link>
+        )}
       </div>
     </div>
   );
