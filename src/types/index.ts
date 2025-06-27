@@ -40,6 +40,7 @@ export interface RunEvent {
   currentParticipants?: number;
   latitude?: number;  // Added latitude property
   longitude?: number; // Added longitude property
+  whatsappGroupLink?: string; // Added WhatsApp group link
   hostContactInfo?: {
     email?: string;
     phone?: string;

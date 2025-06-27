@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +18,7 @@ import RunDetailsSection from './create-run/RunDetailsSection';
 import DescriptionSection from './create-run/DescriptionSection';
 import ParticipantsSection from './create-run/ParticipantsSection';
 import TagsSection from './create-run/TagsSection';
+import WhatsAppSection from './create-run/WhatsAppSection';
 
 interface CreateRunFormProps {
   onRunCreated?: () => void;
@@ -46,6 +46,7 @@ const CreateRunForm: React.FC<CreateRunFormProps> = ({ onRunCreated }) => {
       tags: "",
       imageUrl: "",
       unlimitedSpots: false,
+      whatsappGroupLink: "",
     },
   });
 
@@ -110,6 +111,7 @@ const CreateRunForm: React.FC<CreateRunFormProps> = ({ onRunCreated }) => {
         currentParticipants: 0,
         latitude,
         longitude,
+        whatsappGroupLink: values.whatsappGroupLink || undefined,
         hostContactInfo: {
           email: user?.email,
           businessName: user?.businessDetails?.businessName,
@@ -168,6 +170,7 @@ const CreateRunForm: React.FC<CreateRunFormProps> = ({ onRunCreated }) => {
         <RunDetailsSection form={form} />
         <DescriptionSection form={form} />
         <ParticipantsSection form={form} />
+        <WhatsAppSection form={form} />
         <TagsSection form={form} />
         
         <div className="flex justify-end">

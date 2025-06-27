@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, MapPin, Calendar, Users, Edit } from 'lucide-react';
+import { User, MapPin, Calendar, Users, Edit, Globe, Linkedin, Instagram, Facebook, Twitter } from 'lucide-react';
 import BusinessProfileEditDialog from '@/components/business/BusinessProfileEditDialog';
 import BusinessFeed from '@/components/business/BusinessFeed';
 import BusinessEventHistory from '@/components/business/BusinessEventHistory';
@@ -22,6 +22,17 @@ const BusinessProfilePage = () => {
       </div>
     );
   }
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'website': return Globe;
+      case 'linkedin': return Linkedin;
+      case 'instagram': return Instagram;
+      case 'facebook': return Facebook;
+      case 'twitter': return Twitter;
+      default: return Globe;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -92,24 +103,28 @@ const BusinessProfilePage = () => {
                 <CardHeader>
                   <CardTitle>About Our Business</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
                     <p className="text-gray-600">
-                      {user.businessDetails?.businessName ? 
-                        `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
-                        'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
+                      {user.businessDetails?.description || 
+                        (user.businessDetails?.businessName ? 
+                          `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
+                          'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
+                        )
                       }
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
-                      <p className="text-gray-600">{user.email}</p>
-                      {user.businessDetails?.businessPhone && (
-                        <p className="text-gray-600">{user.businessDetails.businessPhone}</p>
-                      )}
+                      <div className="space-y-1">
+                        <p className="text-gray-600">{user.email}</p>
+                        {user.businessDetails?.businessPhone && (
+                          <p className="text-gray-600">{user.businessDetails.businessPhone}</p>
+                        )}
+                      </div>
                     </div>
                     
                     <div>
@@ -119,6 +134,33 @@ const BusinessProfilePage = () => {
                       </p>
                     </div>
                   </div>
+
+                  {user.businessDetails?.socialLinks && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">Social Media</h4>
+                      <div className="flex flex-wrap gap-3">
+                        {Object.entries(user.businessDetails.socialLinks).map(([platform, url]) => {
+                          if (!url) return null;
+                          const IconComponent = getSocialIcon(platform);
+                          return (
+                            <a
+                              key={platform}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
+                            >
+                              <IconComponent className="w-4 h-4" />
+                              {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                            </a>
+                          );
+                        })}
+                      </div>
+                      {!Object.values(user.businessDetails.socialLinks).some(Boolean) && (
+                        <p className="text-gray-500 text-sm">No social media links added yet.</p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

@@ -11,7 +11,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatPace } from '@/utils/helpers';
 import { RunRegistration } from '@/types';
-import WhatsAppGroupInvite from './WhatsAppGroupInvite';
 
 interface ParticipantsListProps {
   participants: RunRegistration[];
@@ -24,20 +23,14 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({ participants, runTi
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Participants ({participants.length})</h3>
-        <div className="flex gap-2">
-          <WhatsAppGroupInvite 
-            participants={participants}
-            runTitle={runTitle}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onExportCSV}
-            className="text-sm"
-          >
-            Export CSV
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onExportCSV}
+          className="text-sm"
+        >
+          Export CSV
+        </Button>
       </div>
       
       <div className="border rounded-md">

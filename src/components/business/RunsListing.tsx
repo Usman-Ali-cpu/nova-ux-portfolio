@@ -6,8 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDate } from '@/utils/helpers';
 import { RunEvent, RunRegistration } from '@/types';
-import { Users, Download, Edit, CalendarPlus, MessageCircle } from 'lucide-react';
-import WhatsAppGroupInvite from '@/components/runs/WhatsAppGroupInvite';
+import { Users, Download, Edit, CalendarPlus } from 'lucide-react';
 
 interface RunsListingProps {
   runs: RunEvent[];
@@ -105,11 +104,6 @@ const RunsListing: React.FC<RunsListingProps> = ({
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <WhatsAppGroupInvite 
-                    participants={runParticipants[run.id] || []}
-                    runTitle={run.title}
-                    size="sm"
-                  />
                   <Button 
                     variant="outline" 
                     size="sm"

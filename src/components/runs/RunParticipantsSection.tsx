@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { getRemainingSpots } from '@/utils/helpers';
 import { RunEvent } from '@/types';
 import { registrationService } from '@/services/registrationService';
-import WhatsAppGroupInvite from './WhatsAppGroupInvite';
 
 interface RunParticipantsSectionProps {
   run: RunEvent;
@@ -50,12 +49,6 @@ const RunParticipantsSection: React.FC<RunParticipantsSectionProps> = ({ run, re
             {!isLoading && remainingSpots !== null && ` · ${remainingSpots} spots left`}
           </span>
         </div>
-        {participants.length > 0 && (
-          <WhatsAppGroupInvite 
-            participants={participants}
-            runTitle={run.title}
-          />
-        )}
       </div>
     </div>
   );

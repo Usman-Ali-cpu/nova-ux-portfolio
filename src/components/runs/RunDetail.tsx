@@ -7,6 +7,7 @@ import RunLocationSection from './RunLocationSection';
 import RunDescriptionSection from './RunDescriptionSection';
 import RunHostSection from './RunHostSection';
 import RunParticipantsSection from './RunParticipantsSection';
+import RunWhatsAppSection from './RunWhatsAppSection';
 
 interface RunDetailProps {
   run: RunEvent;
@@ -21,6 +22,9 @@ const RunDetail: React.FC<RunDetailProps> = ({ run, refreshKey = 0 }) => {
       
       {/* Run details */}
       <RunInfoGrid run={run} />
+      
+      {/* WhatsApp Group Section */}
+      <RunWhatsAppSection run={run} />
       
       {/* Run location */}
       <RunLocationSection run={run} />

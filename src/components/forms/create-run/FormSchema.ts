@@ -26,6 +26,7 @@ export const formSchema = z.object({
   tags: z.string().optional(),
   imageUrl: z.string().optional(),
   unlimitedSpots: z.boolean().default(false),
+  whatsappGroupLink: z.string().url().optional().or(z.literal("")),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
