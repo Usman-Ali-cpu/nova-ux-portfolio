@@ -41,7 +41,7 @@ const RunHostSection: React.FC<RunHostSectionProps> = ({ run }) => {
         </div>
         <div className="flex-1">
           <Link 
-            to={`/business/${run.businessId}/profile`}
+            to={`/business/${run.hostId}/profile`}
             className="font-medium text-pacers-blue hover:underline cursor-pointer"
           >
             {getHostDisplayName()}
