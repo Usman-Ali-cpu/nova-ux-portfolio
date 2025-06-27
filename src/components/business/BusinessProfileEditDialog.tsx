@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,6 +43,7 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
       const profileData = {
         name: formData.name,
         email: formData.email,
+        role: user.role, // Include the user's current role
         businessDetails: {
           businessName: formData.businessName,
           businessLocation: formData.businessLocation,

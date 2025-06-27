@@ -41,7 +41,15 @@ export const userProfileService = {
       
       if (profileData.name) updateData.name = profileData.name;
       if (profileData.email) updateData.email = profileData.email;
-      if (profileData.role) updateData.role = profileData.role === 'business' ? 'business' : 'runner';
+      
+      // Always include role - default to 'business' if not specified but we have business details
+      if (profileData.role) {
+        updateData.role = profileData.role === 'business' ? 'business' : 'runner';
+      } else if (profileData.businessDetails) {
+        updateData.role = 'business';
+      } else {
+        updateData.role = 'runner';
+      }
       
       // Handle business details for business users
       if (profileData.businessDetails) {
