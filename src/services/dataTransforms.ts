@@ -107,7 +107,7 @@ export const transformXanoUser = (xanoUser: XanoUser): User => {
     email: xanoUser.email,
     name: xanoUser.name,
     role: xanoUser.role,
-    isActive: xanoUser.is_active, // Add email verification status
+    is_active: xanoUser.is_active, // Use is_active instead of isActive
   };
 
   // Add business details if the user is a business

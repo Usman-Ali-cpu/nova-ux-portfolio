@@ -54,46 +54,16 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, suggestedRole }) => 
     
     setIsLoading(true);
     try {
-      if (values.role === "runner") {
-        console.log('SignupForm: Signing up runner...');
-        await signup(values.name, values.email, values.password, values.role);
-        console.log('SignupForm: Runner signup successful');
-      } else {
-        console.log('SignupForm: Signing up business...');
-        console.log('Business form values:', {
-          personName: values.personName,
-          businessName: values.businessName,
-          location: values.location,
-          countryCode: values.countryCode,
-          businessPhone: values.businessPhone,
-          email: values.email
-        });
-        
-        // For business, combine country code with phone number
-        const fullPhoneNumber = `${values.countryCode}${values.businessPhone}`;
-        console.log('Full phone number:', fullPhoneNumber);
-        
-        const businessDetails = {
-          businessName: values.businessName,
-          businessLocation: values.location,
-          businessPhone: fullPhoneNumber,
-          ...(latitude && longitude && {
-            latitude,
-            longitude
-          })
-        };
-        
-        console.log('Business details being sent:', businessDetails);
-        
-        await signup(
-          values.personName, 
-          values.email, 
-          values.password, 
-          values.role,
-          businessDetails
-        );
-        console.log('SignupForm: Business signup successful');
-      }
+      // Pass the entire values object to signup
+      const userData = {
+        ...values,
+        latitude,
+        longitude
+      };
+      
+      console.log('SignupForm: Calling signup with userData:', userData);
+      await signup(userData);
+      console.log('SignupForm: Signup successful');
       
       console.log('SignupForm: Calling onSuccess callback...');
       toast.success('Account created successfully!');

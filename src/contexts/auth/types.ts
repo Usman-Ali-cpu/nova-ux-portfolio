@@ -1,9 +1,11 @@
 
+export type UserRole = 'runner' | 'business';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'runner' | 'business';
+  role: UserRole;
   profileImageUrl?: string;
   runnerDetails?: RunnerDetails;
   businessDetails?: BusinessDetails;
@@ -37,4 +39,5 @@ export interface AuthContextType {
   logout: () => void;
   setUser: (user: User) => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }

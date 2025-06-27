@@ -62,25 +62,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Sign up with email and other details
-  const signup = async (
-    name: string, 
-    email: string, 
-    password: string, 
-    role: UserRole,
-    businessDetails?: {
-      businessName: string;
-      businessLocation: string;
-      businessPhone?: string;
-      latitude?: number;
-      longitude?: number;
-    }
-  ) => {
-    console.log('AuthContext.signup called with:', { name, email, role, businessDetails });
+  // Sign up with any user data format
+  const signup = async (userData: any) => {
+    console.log('AuthContext.signup called with:', userData);
     setIsLoading(true);
     try {
       console.log('Calling authService.signup...');
-      const result = await authService.signup(name, email, password, role, businessDetails);
+      
+      // Extract the data based on the format we expect
+      const { name, personName, email, password, role, businessName, location, businessPhone, countryCode } = userData;
+      const actualName = name || personName;
+      
+      let businessDetails;
+      if (role === 'business') {
+        businessDetails = {
+          businessName: businessName || '',
+          businessLocation: location || '',
+          businessPhone: businessPhone ? `${countryCode || ''}${businessPhone}` : undefined
+        };
+      }
+      
+      const result = await authService.signup(actualName, email, password, role, businessDetails);
       console.log('AuthContext.signup successful, result:', result);
       
       if (result.requiresVerification) {
@@ -126,7 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     signup,
     logout,
-    setUser: handleSetUser
+    setUser: handleSetUser,
+    isAuthenticated: !!user
   };
 
   console.log('AuthProvider rendering with context value:', {
