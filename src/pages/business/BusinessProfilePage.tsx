@@ -81,25 +81,7 @@ const BusinessProfilePage = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Profile Content Tabs */}
-          <Tabs defaultValue="feed" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="feed">Updates & Feed</TabsTrigger>
-              <TabsTrigger value="events">Event History</TabsTrigger>
-              <TabsTrigger value="about">About</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="feed">
-              <BusinessFeed businessId={user.id} />
-            </TabsContent>
-
-            <TabsContent value="events">
-              <BusinessEventHistory businessId={user.id} />
-            </TabsContent>
-
-            <TabsContent value="about">
-              <Card>
+          <Card className="mb-8">
                 <CardHeader>
                   <CardTitle>About Our Business</CardTitle>
                 </CardHeader>
@@ -163,7 +145,27 @@ const BusinessProfilePage = () => {
                   )}
                 </CardContent>
               </Card>
+
+          {/* Profile Content Tabs */}
+          <Tabs defaultValue="feed" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="feed">Updates & Feed</TabsTrigger>
+              <TabsTrigger value="events">Event History</TabsTrigger>
+              <TabsTrigger value="upcomming">Upcomming Events</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="feed">
+              <BusinessFeed businessId={user.id} />
             </TabsContent>
+
+            <TabsContent value="events">
+              <BusinessEventHistory businessId={user.id} />
+            </TabsContent>
+
+            <TabsContent value="upcomming">
+              
+            </TabsContent>
+
           </Tabs>
         </div>
       </main>

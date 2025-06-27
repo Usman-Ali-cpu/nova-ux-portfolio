@@ -49,15 +49,16 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
           businessLocation: formData.businessLocation,
           businessPhone: formData.businessPhone,
           description: formData.description,
-          socialLinks: {
-            website: formData.website || undefined,
-            linkedin: formData.linkedin || undefined,
-            instagram: formData.instagram || undefined,
-            facebook: formData.facebook || undefined,
-            twitter: formData.twitter || undefined,
+            socialLinks: {
+              website: formData.website,
+              linkedin: formData.linkedin || undefined,
+              instagram: formData.instagram || undefined,
+              facebook: formData.facebook || undefined,
+              twitter: formData.twitter || undefined,
+            }
           }
-        }
-      };
+        };
+        console.log('Profile data to update:', formData.website, formData.linkedin, formData.instagram, formData.facebook, formData.twitter);
 
       const updatedUser = await userProfileService.updateProfile(user.id, profileData);
       setUser(updatedUser);

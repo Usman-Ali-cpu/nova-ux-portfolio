@@ -1,5 +1,5 @@
 
-import { BaseApiService, AUTH_BASE_URL } from './baseApi';
+import { BaseApiService, AUTH_BASE_URL, EVENTS_BASE_URL } from './baseApi';
 import { XanoUser } from './types';
 
 class UsersApiService extends BaseApiService {
@@ -19,7 +19,7 @@ class UsersApiService extends BaseApiService {
     // Try multiple possible endpoints since the API structure isn't clear
     const possibleEndpoints = [
       `/auth/user/${userId}`,
-      `/users/${userId}`,
+      `/user/${userId}`,
       `/user/${userId}`,
       `/runners/${userId}`
     ];
@@ -50,10 +50,11 @@ class UsersApiService extends BaseApiService {
   }
 
   async updateUser(userId: string, userData: Partial<XanoUser>): Promise<XanoUser> {
-    return this.request<XanoUser>(`/users/${userId}`, {
+    console.log('UsersApiService.updateUser: Updating user data for ID:', userId, 'Data:', userData);
+    return this.request<XanoUser>(`/user/${userId}`, {
       method: 'PATCH',
       body: JSON.stringify(userData),
-    }, AUTH_BASE_URL); // Use AUTH_BASE_URL for user operations
+    }, EVENTS_BASE_URL); // Use EVENTS_BASE_URL for user operations
   }
 }
 

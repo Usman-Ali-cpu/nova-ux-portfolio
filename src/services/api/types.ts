@@ -10,8 +10,11 @@ export interface XanoUser {
   business_longitude?: number;
   business_phone?: string; // New field for business contact phone
   business_description?: string; // New field for business description
-  business_website?: string; // New field for business website
-  business_instagram?: string; // New field for business instagram
+  website?: string; // New field for business website
+  instagram?: string; // New field for business instagram
+  facebook?: string; // New field for business facebook
+  twitter?: string; // New field for business twitter
+  linkedin?: string; // New field for business linkedin
   is_active?: boolean; // New field for email verification status
   activation_token?: string; // New field for email verification token
   created_at?: string;
