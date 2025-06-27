@@ -1,21 +1,14 @@
 
-import React from 'react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import RunRegistrationForm from '@/components/forms/RunRegistrationForm';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RunEvent } from '@/types';
-import { Button } from '@/components/ui/button';
+import RunRegistrationForm from '@/components/forms/RunRegistrationForm';
+import WhatsAppJoinModal from './WhatsAppJoinModal';
 
 interface RunRegistrationDialogProps {
   run: RunEvent;
   showDialog: boolean;
-  setShowDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowDialog: (show: boolean) => void;
   onRegistrationComplete: () => void;
 }
 
@@ -25,24 +18,42 @@ const RunRegistrationDialog: React.FC<RunRegistrationDialogProps> = ({
   setShowDialog,
   onRegistrationComplete
 }) => {
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+
+  const handleRegistrationSuccess = () => {
+    setShowDialog(false);
+    onRegistrationComplete();
+    
+    // Show WhatsApp modal if there's a group link
+    if (run.whatsappGroupLink) {
+      setShowWhatsAppModal(true);
+    }
+  };
+
   return (
-    <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogTrigger asChild>
-        <Button className="hidden">Register</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Register for {run.title}</DialogTitle>
-          <DialogDescription>
-            Enter your details to sign up for this run.
-          </DialogDescription>
-        </DialogHeader>
-        <RunRegistrationForm 
-          runId={run.id} 
-          onRegistrationComplete={onRegistrationComplete}
+    <>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Register for {run.title}</DialogTitle>
+          </DialogHeader>
+          <RunRegistrationForm 
+            runId={run.id} 
+            onRegistrationComplete={handleRegistrationSuccess}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* WhatsApp Join Modal */}
+      {run.whatsappGroupLink && (
+        <WhatsAppJoinModal
+          isOpen={showWhatsAppModal}
+          onClose={() => setShowWhatsAppModal(false)}
+          whatsappLink={run.whatsappGroupLink}
+          runTitle={run.title}
         />
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   );
 };
 

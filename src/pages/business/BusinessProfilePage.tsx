@@ -10,6 +10,7 @@ import { User, MapPin, Calendar, Users, Edit, Globe, Linkedin, Instagram, Facebo
 import BusinessProfileEditDialog from '@/components/business/BusinessProfileEditDialog';
 import BusinessFeed from '@/components/business/BusinessFeed';
 import BusinessEventHistory from '@/components/business/BusinessEventHistory';
+import BusinessUpcomingEvents from '@/components/business/BusinessUpcomingEvents';
 
 const BusinessProfilePage = () => {
   const { user } = useAuth();
@@ -81,77 +82,78 @@ const BusinessProfilePage = () => {
               </div>
             </CardContent>
           </Card>
+          
           <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>About Our Business</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
-                    <p className="text-gray-600">
-                      {user.businessDetails?.description || 
-                        (user.businessDetails?.businessName ? 
-                          `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
-                          'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
-                        )
-                      }
-                    </p>
+            <CardHeader>
+              <CardTitle>About Our Business</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
+                <p className="text-gray-600">
+                  {user.businessDetails?.description || 
+                    (user.businessDetails?.businessName ? 
+                      `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
+                      'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
+                    )
+                  }
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
+                  <div className="space-y-1">
+                    <p className="text-gray-600">{user.email}</p>
+                    {user.businessDetails?.businessPhone && (
+                      <p className="text-gray-600">{user.businessDetails.businessPhone}</p>
+                    )}
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
-                      <div className="space-y-1">
-                        <p className="text-gray-600">{user.email}</p>
-                        {user.businessDetails?.businessPhone && (
-                          <p className="text-gray-600">{user.businessDetails.businessPhone}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
-                      <p className="text-gray-600">
-                        {user.businessDetails?.businessLocation || 'Location not specified'}
-                      </p>
-                    </div>
-                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
+                  <p className="text-gray-600">
+                    {user.businessDetails?.businessLocation || 'Location not specified'}
+                  </p>
+                </div>
+              </div>
 
-                  {user.businessDetails?.socialLinks && (
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">Social Media</h4>
-                      <div className="flex flex-wrap gap-3">
-                        {Object.entries(user.businessDetails.socialLinks).map(([platform, url]) => {
-                          if (!url) return null;
-                          const IconComponent = getSocialIcon(platform);
-                          return (
-                            <a
-                              key={platform}
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
-                            >
-                              <IconComponent className="w-4 h-4" />
-                              {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                            </a>
-                          );
-                        })}
-                      </div>
-                      {!Object.values(user.businessDetails.socialLinks).some(Boolean) && (
-                        <p className="text-gray-500 text-sm">No social media links added yet.</p>
-                      )}
-                    </div>
+              {user.businessDetails?.socialLinks && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Social Media</h4>
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(user.businessDetails.socialLinks).map(([platform, url]) => {
+                      if (!url) return null;
+                      const IconComponent = getSocialIcon(platform);
+                      return (
+                        <a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
+                        >
+                          <IconComponent className="w-4 h-4" />
+                          {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {!Object.values(user.businessDetails.socialLinks).some(Boolean) && (
+                    <p className="text-gray-500 text-sm">No social media links added yet.</p>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Profile Content Tabs */}
           <Tabs defaultValue="feed" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="feed">Updates & Feed</TabsTrigger>
               <TabsTrigger value="events">Event History</TabsTrigger>
-              <TabsTrigger value="upcomming">Upcomming Events</TabsTrigger>
+              <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
             </TabsList>
 
             <TabsContent value="feed">
@@ -162,10 +164,9 @@ const BusinessProfilePage = () => {
               <BusinessEventHistory businessId={user.id} />
             </TabsContent>
 
-            <TabsContent value="upcomming">
-              
+            <TabsContent value="upcoming">
+              <BusinessUpcomingEvents businessId={user.id} />
             </TabsContent>
-
           </Tabs>
         </div>
       </main>

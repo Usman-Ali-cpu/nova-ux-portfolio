@@ -12,6 +12,7 @@ import RunDetailPage from "./pages/RunDetailPage";
 import MyRunsPage from "./pages/MyRunsPage";
 import BusinessHomePage from "./pages/business/BusinessHomePage";
 import BusinessProfilePage from "./pages/business/BusinessProfilePage";
+import PublicBusinessProfilePage from "./pages/PublicBusinessProfilePage";
 import CreateRunPage from "./pages/business/CreateRunPage";
 import AllParticipantsPage from "./pages/business/AllParticipantsPage";
 import LoginPage from "./pages/auth/LoginPage";
@@ -65,6 +66,7 @@ const AppRoutes = () => {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/runs" element={<RunsPage />} />
       <Route path="/runs/:id" element={<RunDetailPage />} />
+      <Route path="/business/:businessId/profile" element={<PublicBusinessProfilePage />} />
       <Route 
         path="/user-home" 
         element={

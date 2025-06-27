@@ -12,14 +12,14 @@ export interface UpdateProfileData {
     latitude?: number;
     longitude?: number;
   };
-  instagram?: string; // New field for business Instagram
-  businessPhone?: string; // New field for business contact phone
-  website?: string; // New field for business website
-  facebook?: string; // New field for business Facebook
-  twitter?: string; // New field for business Twitter
-  linkedin?: string; // New field for business LinkedIn
-  businessDescription?: string; // New field for business description
-  role?: UserRole; // Optional field to update user role
+  instagram?: string;
+  businessPhone?: string;
+  website?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedin?: string;
+  businessDescription?: string;
+  role?: UserRole;
 }
 
 export const userProfileService = {
@@ -55,32 +55,31 @@ export const userProfileService = {
         if (profileData.businessDetails.longitude) {
           updateData.business_longitude = profileData.businessDetails.longitude;
         }
-        // Add business phone if provided
-        if (profileData.businessPhone) {
-          updateData.business_phone = profileData.businessPhone;
-        }
-        // Add business description if provided
-        if (profileData.businessDescription) {
-          updateData.business_description = profileData.businessDescription;
-        }
-        // Add social media links if provided
-        if (profileData.instagram) {
-          updateData.instagram = profileData.instagram;
-        }
-        if (profileData.website) {
-          updateData.website = profileData.website;
-        }
-        if (profileData.facebook) {
-          updateData.facebook = profileData.facebook;
-        }
-        if (profileData.twitter) {
-          updateData.twitter = profileData.twitter;
-        }
-        if (profileData.linkedin) {
-          updateData.linkedin = profileData.linkedin;
-        }
-
       }
+      
+      // Handle social media links and business details separately
+      if (profileData.businessPhone) {
+        updateData.business_phone = profileData.businessPhone;
+      }
+      if (profileData.businessDescription) {
+        updateData.business_description = profileData.businessDescription;
+      }
+      if (profileData.instagram) {
+        updateData.instagram = profileData.instagram;
+      }
+      if (profileData.website) {
+        updateData.website = profileData.website;
+      }
+      if (profileData.facebook) {
+        updateData.facebook = profileData.facebook;
+      }
+      if (profileData.twitter) {
+        updateData.twitter = profileData.twitter;
+      }
+      if (profileData.linkedin) {
+        updateData.linkedin = profileData.linkedin;
+      }
+
       console.log('Updating user profile with data:', updateData);
       
       const updatedUser = await usersApi.updateUser(userId, updateData);

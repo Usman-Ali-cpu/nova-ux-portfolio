@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, Phone } from 'lucide-react';
 import { RunEvent } from '@/types';
 
@@ -39,7 +40,12 @@ const RunHostSection: React.FC<RunHostSectionProps> = ({ run }) => {
           </div>
         </div>
         <div className="flex-1">
-          <h3 className="font-medium">{getHostDisplayName()}</h3>
+          <Link 
+            to={`/business/${run.businessId}/profile`}
+            className="font-medium text-pacers-blue hover:underline cursor-pointer"
+          >
+            {getHostDisplayName()}
+          </Link>
           <p className="text-sm text-muted-foreground">Verified Host</p>
           
           {/* Business contact information - only shown for business hosts */}
