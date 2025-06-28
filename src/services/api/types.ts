@@ -1,3 +1,4 @@
+
 export interface XanoUser {
   id: number;
   created_at: number;
@@ -12,6 +13,7 @@ export interface XanoUser {
   twitter?: string;
   linkedin?: string;
   website?: string;
+  is_active?: boolean; // Add missing is_active property
 }
 
 export interface XanoEvent {
@@ -48,4 +50,20 @@ export interface UploadResult {
   url: string;
   thumbnail_url: string;
   filesize: number;
+}
+
+// Add missing XanoAuthResponse interface
+export interface XanoAuthResponse {
+  authToken: string;
+  user?: XanoUser;
+}
+
+// Add missing XanoBusinessPost interface
+export interface XanoBusinessPost {
+  id: number;
+  created_at: string;
+  business_id: number;
+  title: string;
+  content: string;
+  business_name?: string;
 }

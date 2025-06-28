@@ -39,10 +39,11 @@ class UsersApiService extends BaseApiService {
       }
     }
     
-    // If all endpoints fail, return fallback
+    // If all endpoints fail, return fallback with required created_at property
     console.error('UsersApiService.getUser: All endpoints failed for user ID:', userId);
     return {
       id: userId,
+      created_at: Date.now(), // Add missing created_at property
       name: `User ${userId}`,
       email: '',
       role: 'runner'
