@@ -18,18 +18,23 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({ user }) => {
   };
 
   // Helper function to safely get business location string
-  const getBusinessLocationString = () => {
+  const getBusinessLocationString = (): string => {
     if (!user.businessDetails?.businessLocation) return '';
     
+    const location = user.businessDetails.businessLocation;
+    
     // If it's already a string, return it
-    if (typeof user.businessDetails.businessLocation === 'string') {
-      return user.businessDetails.businessLocation;
+    if (typeof location === 'string') {
+      return location;
     }
     
     // If it's an object with coordinates, return a formatted string
-    if (user.businessDetails.businessLocation.type === 'point' && user.businessDetails.businessLocation.data) {
-      const { lat, lng } = user.businessDetails.businessLocation.data;
-      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    if (typeof location === 'object' && location !== null && 'type' in location && 'data' in location) {
+      const locationObj = location as { type: string; data: { lat: number; lng: number; } };
+      if (locationObj.type === 'point' && locationObj.data) {
+        const { lat, lng } = locationObj.data;
+        return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
     }
     
     return '';

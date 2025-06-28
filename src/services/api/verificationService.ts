@@ -12,9 +12,12 @@ class VerificationApiService extends BaseApiService {
     console.log('VerificationApiService.generateVerificationToken: Generating token for user:', userId);
     
     try {
+      // Ensure userId is converted to number if it's a string that represents a number
+      const userIdForApi = typeof userId === 'string' && !isNaN(Number(userId)) ? Number(userId) : userId;
+      
       const response = await this.request<{ token: string; success: boolean }>('/auth/generate-verification-token', {
         method: 'POST',
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: userIdForApi }),
       }, AUTH_BASE_URL);
       
       console.log('VerificationApiService.generateVerificationToken: Response received:', response);

@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { User, UserRole } from './types';
 import { authApi, usersApi } from '@/services/api';
@@ -80,13 +79,7 @@ export const authService = {
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
       // Extract user ID from response (assuming it's returned)
-      let userId = response.user?.id;
-      if (!userId) {
-        // If user ID is not in signup response, we need to get it
-        console.log('Step 2: Getting user ID for verification...');
-        // You may need to adjust this based on your API response structure
-        userId = response.user?.id || email; // fallback to email if ID not available
-      }
+      let userId: string | number = response.user?.id || email;
       
       // Send verification email using our custom service
       console.log('Step 2: Sending verification email...');

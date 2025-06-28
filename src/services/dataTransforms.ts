@@ -1,6 +1,6 @@
 import { XanoEvent, XanoUser, XanoRegistration } from './api/types';
 import { RunEvent, RunRegistration } from '@/types';
-import { User } from '@/contexts/auth/types'; // Use correct User type
+import { User, UserRole } from '@/contexts/auth/types'; // Import UserRole type
 
 // Transform Xano event to our RunEvent type
 export const transformXanoEvent = (xanoEvent: XanoEvent): RunEvent => {
