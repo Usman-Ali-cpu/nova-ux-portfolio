@@ -1,4 +1,3 @@
-
 import { XanoEvent, XanoUser, XanoRegistration } from './api/types';
 import { RunEvent, RunRegistration } from '@/types';
 import { User } from '@/contexts/auth/types'; // Use correct User type
@@ -149,25 +148,52 @@ const extractLongitudeFromGeoPoint = (geoPoint: string | object | null): number 
 
 // Transform Xano user to our User type
 export const transformXanoUser = (xanoUser: XanoUser): User => {
-  return {
+  console.log('transformXanoUser input:', xanoUser);
+  
+  const user: User = {
     id: xanoUser.id.toString(),
-    name: xanoUser.name || '',
-    email: xanoUser.email || '',
-    role: (xanoUser.role as 'runner' | 'business') || 'runner',
-    businessDetails: xanoUser.role === 'business' ? {
+    name: xanoUser.name,
+    email: xanoUser.email,
+    role: xanoUser.role as UserRole,
+    is_active: xanoUser.is_active
+  };
+
+  // Add role-specific details
+  if (xanoUser.role === 'business') {
+    // Handle business location properly
+    let businessLocation = '';
+    if (xanoUser.business_location) {
+      if (typeof xanoUser.business_location === 'string') {
+        businessLocation = xanoUser.business_location;
+      } else if (typeof xanoUser.business_location === 'object' && xanoUser.business_location.type === 'point') {
+        const { lat, lng } = xanoUser.business_location.data;
+        businessLocation = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    }
+
+    user.businessDetails = {
       businessName: xanoUser.business_name || '',
-      businessLocation: xanoUser.business_location || '',
+      businessLocation: businessLocation,
       businessPhone: xanoUser.business_phone || '',
-      description: '', // Add if available in schema
+      description: xanoUser.business_description || '',
       socialLinks: {
         website: xanoUser.website || '',
+        linkedin: xanoUser.linkedin || '',
         instagram: xanoUser.instagram || '',
         facebook: xanoUser.facebook || '',
         twitter: xanoUser.twitter || '',
-        linkedin: xanoUser.linkedin || '',
       }
-    } : undefined
-  };
+    };
+  } else if (xanoUser.role === 'runner') {
+    user.runnerDetails = {
+      pace: xanoUser.pace_seconds_per_km,
+      experience: xanoUser.experience_level,
+      goals: xanoUser.running_goals
+    };
+  }
+
+  console.log('transformXanoUser output:', user);
+  return user;
 };
 
 // Transform Xano registration to our RunRegistration type
