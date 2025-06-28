@@ -31,7 +31,7 @@ const RunParticipantsPage = () => {
       p.userName,
       p.userEmail,
       `${p.userPace} min/km`,
-      new Date(p.registeredAt).toLocaleDateString()
+      new Date(parseInt(p.registeredAt)).toLocaleDateString()
     ]);
     
     const csvContent = [
