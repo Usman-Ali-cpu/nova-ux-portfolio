@@ -10,19 +10,12 @@ interface RunWhatsAppSectionProps {
 }
 
 const RunWhatsAppSection: React.FC<RunWhatsAppSectionProps> = ({ run }) => {
-  console.log('RunWhatsAppSection - run.whatsappGroupLink:', run.whatsappGroupLink);
-  
-  // Always show the section if there's a WhatsApp link, even if it's empty string
-  if (!run.whatsappGroupLink || run.whatsappGroupLink.trim() === '') {
-    console.log('No WhatsApp link found or empty link');
+  if (!run.whatsappGroupLink) {
     return null;
   }
 
   const handleJoinGroup = () => {
-    if (run.whatsappGroupLink) {
-      console.log('Opening WhatsApp link:', run.whatsappGroupLink);
-      window.open(run.whatsappGroupLink, '_blank', 'noopener,noreferrer');
-    }
+    window.open(run.whatsappGroupLink, '_blank', 'noopener,noreferrer');
   };
 
   return (

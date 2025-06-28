@@ -90,9 +90,9 @@ export const registrationService = {
           const detailedReg = await registrationsApi.getRegistration(reg.id);
           console.log('Detailed registration data:', detailedReg);
           
-          // Extract user data from nested user object only
-          const userName = detailedReg.user?.name || `User ${detailedReg.runner_id}`;
-          const userEmail = detailedReg.user?.email || '';
+          // Extract user data from nested user object or fallback to legacy fields
+          const userName = detailedReg.user?.name || detailedReg.runner_name || `User ${detailedReg.runner_id}`;
+          const userEmail = detailedReg.user?.email || detailedReg.runner_email || '';
           
           registrationsWithUserData.push({
             id: detailedReg.id.toString(),
@@ -101,7 +101,7 @@ export const registrationService = {
             userName,
             userEmail,
             userPace: 6.0, // Default or could be fetched from user profile
-            registeredAt: (detailedReg.created_at || Date.now()).toString(),
+            registeredAt: detailedReg.created_at || new Date().toISOString(),
             status: 'confirmed' as const,
           });
         } catch (error) {
@@ -114,7 +114,7 @@ export const registrationService = {
             userName: `User ${reg.runner_id}`,
             userEmail: '',
             userPace: 6.0,
-            registeredAt: (reg.created_at || Date.now()).toString(),
+            registeredAt: reg.created_at || new Date().toISOString(),
             status: 'confirmed' as const,
           });
         }
@@ -145,9 +145,9 @@ export const registrationService = {
           const detailedReg = await registrationsApi.getRegistration(reg.id);
           console.log('Detailed registration data for event registration:', detailedReg);
           
-          // Extract user data from nested user object only
-          const userName = detailedReg.user?.name || `User ${detailedReg.runner_id}`;
-          const userEmail = detailedReg.user?.email || '';
+          // Extract user data from nested user object or fallback to legacy fields
+          const userName = detailedReg.user?.name || detailedReg.runner_name || `User ${detailedReg.runner_id}`;
+          const userEmail = detailedReg.user?.email || detailedReg.runner_email || '';
           
           registrationsWithUserData.push({
             id: detailedReg.id.toString(),
@@ -156,7 +156,7 @@ export const registrationService = {
             userName,
             userEmail,
             userPace: 6.0, // Default or could be fetched from user profile
-            registeredAt: (detailedReg.created_at || Date.now()).toString(),
+            registeredAt: detailedReg.created_at || new Date().toISOString(),
             status: 'confirmed' as const,
           });
         } catch (error) {
@@ -169,7 +169,7 @@ export const registrationService = {
             userName: `User ${reg.runner_id}`,
             userEmail: '',
             userPace: 6.0,
-            registeredAt: (reg.created_at || Date.now()).toString(),
+            registeredAt: reg.created_at || new Date().toISOString(),
             status: 'confirmed' as const,
           });
         }

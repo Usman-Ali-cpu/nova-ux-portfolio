@@ -21,16 +21,12 @@ const RunRegistrationDialog: React.FC<RunRegistrationDialogProps> = ({
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
 
   const handleRegistrationSuccess = () => {
-    console.log('Registration successful, checking for WhatsApp link:', run.whatsappGroupLink);
     setShowDialog(false);
     onRegistrationComplete();
     
-    // Show WhatsApp modal if there's a group link (even if empty string, let the modal handle it)
-    if (run.whatsappGroupLink && run.whatsappGroupLink.trim() !== '') {
-      console.log('Showing WhatsApp modal with link:', run.whatsappGroupLink);
+    // Show WhatsApp modal if there's a group link
+    if (run.whatsappGroupLink) {
       setShowWhatsAppModal(true);
-    } else {
-      console.log('No WhatsApp link to show modal for');
     }
   };
 
@@ -48,8 +44,8 @@ const RunRegistrationDialog: React.FC<RunRegistrationDialogProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* WhatsApp Join Modal - only show if there's actually a link */}
-      {run.whatsappGroupLink && run.whatsappGroupLink.trim() !== '' && (
+      {/* WhatsApp Join Modal */}
+      {run.whatsappGroupLink && (
         <WhatsAppJoinModal
           isOpen={showWhatsAppModal}
           onClose={() => setShowWhatsAppModal(false)}

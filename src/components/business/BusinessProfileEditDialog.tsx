@@ -40,12 +40,10 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      console.log('Business profile save - user.role:', user.role);
-      
       const profileData = {
         name: formData.name,
         email: formData.email,
-        role: user.role || 'business', // Ensure role is always provided
+        role: user.role, // Include the user's current role
         businessDetails: {
           businessName: formData.businessName,
           businessLocation: formData.businessLocation,
@@ -60,7 +58,6 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
       };
 
       console.log('Profile data to update:', profileData);
-      console.log('Role being sent:', profileData.role);
 
       const updatedUser = await userProfileService.updateProfile(user.id, profileData);
       setUser(updatedUser);
