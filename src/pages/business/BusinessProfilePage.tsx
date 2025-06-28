@@ -35,6 +35,29 @@ const BusinessProfilePage = () => {
     }
   };
 
+  // Helper function to safely get business location string
+  const getBusinessLocationString = (): string => {
+    if (!user.businessDetails?.businessLocation) return '';
+    
+    const location = user.businessDetails.businessLocation;
+    
+    // If it's already a string, return it
+    if (typeof location === 'string') {
+      return location;
+    }
+    
+    // If it's an object with coordinates, return a formatted string
+    if (typeof location === 'object' && location !== null && 'type' in location && 'data' in location) {
+      const locationObj = location as { type: string; data: { lat: number; lng: number; } };
+      if (locationObj.type === 'point' && locationObj.data) {
+        const { lat, lng } = locationObj.data;
+        return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    }
+    
+    return '';
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -53,10 +76,10 @@ const BusinessProfilePage = () => {
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                       {user.businessDetails?.businessName || user.name}
                     </h1>
-                    {user.businessDetails?.businessLocation && (
+                    {getBusinessLocationString() && (
                       <p className="text-gray-600 flex items-center gap-2 mb-2">
                         <MapPin className="w-4 h-4" />
-                        {user.businessDetails.businessLocation}
+                        {getBusinessLocationString()}
                       </p>
                     )}
                     <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -114,7 +137,7 @@ const BusinessProfilePage = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
                   <p className="text-gray-600">
-                    {user.businessDetails?.businessLocation || 'Location not specified'}
+                    {getBusinessLocationString() || 'Location not specified'}
                   </p>
                 </div>
               </div>
