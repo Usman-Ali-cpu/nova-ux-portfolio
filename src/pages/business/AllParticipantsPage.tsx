@@ -37,7 +37,7 @@ const AllParticipantsPage = () => {
       p.userName,
       p.userEmail,
       p.eventTitle,
-      new Date(p.registeredAt).toLocaleDateString()
+      p.registeredAt
     ]);
     
     const csvContent = [
@@ -99,7 +99,7 @@ const AllParticipantsPage = () => {
                       <TableCell className="font-medium">{participant.userName}</TableCell>
                       <TableCell>{participant.userEmail}</TableCell>
                       <TableCell>{participant.eventTitle}</TableCell>
-                      <TableCell>{new Date(participant.registeredAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(parseInt(participant.registeredAt)).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

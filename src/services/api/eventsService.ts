@@ -140,6 +140,7 @@ class EventsApiService extends BaseApiService {
   ): Promise<XanoEvent> {
     console.log('=== EVENTS API SERVICE WITH BUSINESS INFO ===');
     console.log('Business info received:', { businessName, businessLatitude, businessLongitude });
+    console.log('----------whatsappGroupLink:', runEvent.whatsappGroupLink);
     
     // Transform run event to Xano format with business info
     const xanoEventData = transformToXanoEvent(runEvent, businessId, latitude, longitude, businessName);

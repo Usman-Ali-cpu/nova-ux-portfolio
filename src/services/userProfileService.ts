@@ -42,13 +42,12 @@ export const userProfileService = {
       if (profileData.name) updateData.name = profileData.name;
       if (profileData.email) updateData.email = profileData.email;
       
-      // Always include role - default to 'business' if not specified but we have business details
+      // ALWAYS include role - this is required by the API
       if (profileData.role) {
-        updateData.role = profileData.role === 'business' ? 'business' : 'runner';
-      } else if (profileData.businessDetails) {
-        updateData.role = 'business';
+        updateData.role = profileData.role;
       } else {
-        updateData.role = 'runner';
+        // Default to 'business' if we have business details, otherwise 'runner'
+        updateData.role = profileData.businessDetails ? 'business' : 'runner';
       }
       
       // Handle business details for business users
@@ -89,6 +88,7 @@ export const userProfileService = {
       }
 
       console.log('Updating user profile with data:', updateData);
+      console.log('Role being sent:', updateData.role);
       
       const updatedUser = await usersApi.updateUser(userId, updateData);
       return transformXanoUser(updatedUser);

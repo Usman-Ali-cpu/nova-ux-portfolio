@@ -1,71 +1,72 @@
-// Types for Xano responses
 export interface XanoUser {
   id: number;
-  email: string;
+  created_at: number;
   name: string;
-  role: 'business' | 'runner';
+  email: string;
+  role: string;
   business_name?: string;
-  business_location?: string;
-  business_latitude?: number;
-  business_longitude?: number;
-  business_phone?: string; // New field for business contact phone
-  business_description?: string; // New field for business description
-  website?: string; // New field for business website
-  instagram?: string; // New field for business instagram
-  facebook?: string; // New field for business facebook
-  twitter?: string; // New field for business twitter
-  linkedin?: string; // New field for business linkedin
-  is_active?: boolean; // New field for email verification status
-  activation_token?: string; // New field for email verification token
-  created_at?: string;
+  business_location?: string | { type: string; data: { lng: number; lat: number; } };
+  business_phone?: string;
+  business_description?: string; // Add missing field
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedin?: string;
+  website?: string;
+  is_active?: boolean;
+  pace_seconds_per_km?: number;
+  experience_level?: string;
+  running_goals?: string;
 }
 
 export interface XanoEvent {
   id: number;
+  created_at: number;
   title: string;
   description: string;
-  event_start: number; // Timestamp in milliseconds
+  event_start: number;
   pace_seconds_per_km: number;
   distance: number;
   max_participants?: number;
-  event_image?: string;
-  event_location?: string; // POINT format for geographic data
-  event_address?: string; // New field for text address
-  location?: string; // Location name field
   business_id: number;
-  business_name?: string; // Field that gets populated from database
-  business_phone?: string; // Field that gets populated from database
-  business_location?: string; // Field that gets populated from database
-  created_at?: string;
+  business_name: string;
+  event_location?: string | { type: string; data: { lng: number; lat: number; } }; // Support both string and object formats
+  event_address: string;
+  business_phone?: string;
+  whatsappGroupLink?: string; // Ensure this field is properly typed
 }
 
 export interface XanoRegistration {
   id: number;
-  events_id: number; // Changed from event_id to events_id to match API
+  created_at: number;
   runner_id: number;
-  created_at?: string;
-  // New nested user object structure
+  events_id: number;
   user?: {
-    name: string;
-    email: string;
+    name?: string;
+    email?: string;
   };
-  // Legacy fields for backwards compatibility
-  runner_name?: string; // User name populated from registration endpoint
-  runner_email?: string; // User email populated from registration endpoint
 }
 
-// New type for business feed posts
+export interface UploadResult {
+  id: number;
+  name: string;
+  url: string;
+  thumbnail_url: string;
+  filesize: number;
+}
+
+// Add missing XanoAuthResponse interface
+export interface XanoAuthResponse {
+  authToken: string;
+  user?: XanoUser;
+}
+
+// Add missing XanoBusinessPost interface
 export interface XanoBusinessPost {
   id: number;
+  created_at: string;
   business_id: number;
   title: string;
   content: string;
-  post_image?: string;
-  created_at: string;
   business_name?: string;
-}
-
-// Simplified to match actual Xano API response - only returns authToken
-export interface XanoAuthResponse {
-  authToken: string;
 }

@@ -17,6 +17,24 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({ user }) => {
     navigate('/business/profile');
   };
 
+  // Helper function to safely get business location string
+  const getBusinessLocationString = () => {
+    if (!user.businessDetails?.businessLocation) return '';
+    
+    // If it's already a string, return it
+    if (typeof user.businessDetails.businessLocation === 'string') {
+      return user.businessDetails.businessLocation;
+    }
+    
+    // If it's an object with coordinates, return a formatted string
+    if (user.businessDetails.businessLocation.type === 'point' && user.businessDetails.businessLocation.data) {
+      const { lat, lng } = user.businessDetails.businessLocation.data;
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+    
+    return '';
+  };
+
   return (
     <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
       <CardContent className="p-6">
@@ -29,10 +47,10 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({ user }) => {
               <h3 className="text-xl font-semibold text-gray-900">
                 {user.businessDetails?.businessName || user.name}
               </h3>
-              {user.businessDetails?.businessLocation && (
+              {getBusinessLocationString() && (
                 <p className="text-gray-600 flex items-center gap-1 mt-1">
                   <MapPin className="w-4 h-4" />
-                  {user.businessDetails.businessLocation}
+                  {getBusinessLocationString()}
                 </p>
               )}
               <p className="text-sm text-gray-500 mt-1">Manage your business profile and updates</p>

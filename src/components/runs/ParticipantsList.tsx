@@ -51,7 +51,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({ participants, runTi
                   <TableCell>{participant.userEmail}</TableCell>
                   <TableCell>{formatPace(participant.userPace)}</TableCell>
                   <TableCell>
-                    {new Date(participant.registeredAt).toLocaleDateString()}
+                  {new Date(parseInt(participant.registeredAt)).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
               ))

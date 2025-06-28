@@ -1,129 +1,52 @@
-import { XanoUser, XanoEvent, XanoRegistration, XanoBusinessPost } from './api/types';
-import { User } from '@/contexts/auth/types';
-import { RunEvent } from '@/types';
-import { format } from 'date-fns';
+import { XanoEvent, XanoUser, XanoRegistration } from './api/types';
+import { RunEvent, RunRegistration } from '@/types';
+import { User } from '@/contexts/auth/types'; // Use correct User type
 
-// Transform Xano event to our RunEvent format
+// Transform Xano event to our RunEvent type
 export const transformXanoEvent = (xanoEvent: XanoEvent): RunEvent => {
-  console.log('=== TRANSFORMING XANO EVENT ===');
-  console.log('Raw Xano event:', xanoEvent);
+  console.log('=== TRANSFORM XANO EVENT ===');
+  console.log('Input xanoEvent:', xanoEvent);
+  console.log('WhatsApp link in xanoEvent:', xanoEvent.whatsappGroupLink);
   
-  // Parse the event date from timestamp
+  // Extract date and time from event_start timestamp
   const eventDate = new Date(xanoEvent.event_start);
-  console.log('Parsed event date:', eventDate);
-  
-  // Format date and time
-  const formattedDate = format(eventDate, 'yyyy-MM-dd');
-  const formattedTime = format(eventDate, 'HH:mm');
-  
-  console.log('Formatted date:', formattedDate);
-  console.log('Formatted time:', formattedTime);
-  
-  // Parse coordinates from POINT format if available
-  let latitude: number | undefined;
-  let longitude: number | undefined;
-  
-  if (xanoEvent.event_location && typeof xanoEvent.event_location === 'string') {
-    // Handle POINT format: "POINT(longitude latitude)"
-    const pointMatch = xanoEvent.event_location.match(/POINT\(([^)]+)\)/);
-    if (pointMatch) {
-      const coords = pointMatch[1].split(' ');
-      if (coords.length === 2) {
-        longitude = parseFloat(coords[0]);
-        latitude = parseFloat(coords[1]);
-        console.log('Parsed coordinates:', { latitude, longitude });
-      }
-    }
-  }
-  
-  // Determine pace category based on pace
-  const paceInMinutes = xanoEvent.pace_seconds_per_km / 60;
-  let paceCategory: 'beginner' | 'intermediate' | 'advanced' = 'intermediate';
-  
-  if (paceInMinutes > 6.5) {
-    paceCategory = 'beginner';
-  } else if (paceInMinutes < 4.5) {
-    paceCategory = 'advanced';
-  }
-  
-  console.log('Pace category determined:', paceCategory);
-  
-  // Get business name - prioritize the populated business_name field
-  const hostName = xanoEvent.business_name || 'Business Host';
-  console.log('Host name determined:', hostName);
-  
-  // Build host contact info - now includes business_phone from API
-  const hostContactInfo: any = {
-    businessName: hostName
-  };
-  
-  // Add business location if available
-  if (xanoEvent.business_location) {
-    hostContactInfo.businessLocation = xanoEvent.business_location;
-  }
-  
-  // Add business phone if available from API response
-  if (xanoEvent.business_phone) {
-    hostContactInfo.phone = xanoEvent.business_phone;
-  }
-  
-  console.log('Host contact info built:', hostContactInfo);
-  
-  // Determine location - prioritize location field, then event_address, then business_location
-  const eventLocation = xanoEvent.location || xanoEvent.event_address || xanoEvent.business_location || 'Location TBD';
-  console.log('Event location determined:', eventLocation);
-  
-  const transformedEvent: RunEvent = {
+  const dateString = eventDate.toISOString().split('T')[0]; // YYYY-MM-DD
+  const timeString = eventDate.toTimeString().slice(0, 5); // HH:MM
+
+  console.log('Transformed date:', dateString, 'time:', timeString);
+  console.log('WhatsApp link being set:', xanoEvent.whatsappGroupLink || undefined);
+
+  const transformed: RunEvent = {
     id: xanoEvent.id.toString(),
-    title: xanoEvent.title,
-    hostId: xanoEvent.business_id.toString(),
-    hostName: hostName,
-    date: formattedDate,
-    time: formattedTime,
-    location: eventLocation,
-    address: xanoEvent.event_address || '',
-    distance: xanoEvent.distance,
-    pace: paceInMinutes,
-    paceCategory: paceCategory,
-    description: xanoEvent.description,
-    imageUrl: xanoEvent.event_image,
-    latitude: latitude,
-    longitude: longitude,
-    hostContactInfo: hostContactInfo,
+    title: xanoEvent.title || 'Untitled Run',
+    hostId: xanoEvent.business_id?.toString() || '1',
+    hostName: xanoEvent.business_name || 'Unknown Business',
+    date: dateString,
+    time: timeString,
+    location: xanoEvent.event_address?.split(',')[0] || 'Location TBD',
+    address: xanoEvent.event_address || 'Address TBD',
+    distance: parseFloat(xanoEvent.distance?.toString() || '5'),
+    pace: xanoEvent.pace_seconds_per_km ? xanoEvent.pace_seconds_per_km / 60 : 6,
+    paceCategory: determinePaceCategory(xanoEvent.pace_seconds_per_km ? xanoEvent.pace_seconds_per_km / 60 : 6),
+    description: xanoEvent.description || 'No description provided',
     maxParticipants: xanoEvent.max_participants,
-    currentParticipants: 0 // This would need to be calculated from registrations
-  };
-  
-  console.log('Final transformed event:', transformedEvent);
-  return transformedEvent;
-};
-
-// Transform Xano user to our User format
-export const transformXanoUser = (xanoUser: XanoUser): User => {
-  console.log('transformXanoUser: Input XanoUser:', xanoUser);
-  
-  const transformed: User = {
-    id: xanoUser.id.toString(),
-    email: xanoUser.email,
-    name: xanoUser.name,
-    role: xanoUser.role,
-    is_active: xanoUser.is_active, // Use is_active instead of isActive
+    currentParticipants: 0,
+    latitude: extractLatitudeFromGeoPoint(xanoEvent.event_location),
+    longitude: extractLongitudeFromGeoPoint(xanoEvent.event_location),
+    whatsappGroupLink: xanoEvent.whatsappGroupLink || undefined, // Ensure WhatsApp link is preserved
+    hostContactInfo: {
+      businessName: xanoEvent.business_name,
+      phone: xanoEvent.business_phone,
+    }
   };
 
-  // Add business details if the user is a business
-  if (xanoUser.role === 'business') {
-    transformed.businessDetails = {
-      businessName: xanoUser.business_name || '',
-      businessLocation: xanoUser.business_location || '',
-      businessPhone: xanoUser.business_phone,
-    };
-  }
-
-  console.log('transformXanoUser: Transformed User:', transformed);
+  console.log('Final transformed event:', transformed);
+  console.log('Final WhatsApp link:', transformed.whatsappGroupLink);
+  
   return transformed;
 };
 
-// Transform our RunEvent to Xano event format
+// Transform our RunEvent to Xano format for API calls
 export const transformToXanoEvent = (
   runEvent: Partial<RunEvent>,
   businessId: number,
@@ -132,51 +55,157 @@ export const transformToXanoEvent = (
   businessName?: string
 ): Omit<XanoEvent, 'id' | 'created_at'> => {
   console.log('=== TRANSFORM TO XANO EVENT ===');
-  console.log('Input runEvent.date:', runEvent.date);
-  console.log('Input runEvent.time:', runEvent.time);
-  console.log('Input businessName:', businessName);
-  console.log('Input runEvent.location:', runEvent.location);
+  console.log('Input runEvent:', runEvent);
+  console.log('WhatsApp link in runEvent:', runEvent.whatsappGroupLink);
   
-  // Combine date and time to create timestamp
+  // Combine date and time into a timestamp
   let eventTimestamp: number;
   
   if (runEvent.date && runEvent.time) {
     const dateTimeString = `${runEvent.date}T${runEvent.time}:00`;
     const eventDate = new Date(dateTimeString);
     eventTimestamp = eventDate.getTime();
-    
-    console.log('Combined date/time string:', dateTimeString);
-    console.log('Created Date object:', eventDate);
-    console.log('Generated timestamp:', eventTimestamp);
+    console.log('Combined date/time:', dateTimeString, '-> timestamp:', eventTimestamp);
   } else {
     eventTimestamp = Date.now();
-    console.log('Using current timestamp as fallback:', eventTimestamp);
+    console.log('Using current timestamp:', eventTimestamp);
   }
-  
-  // Create location POINT if coordinates are provided
-  let eventLocation: string | undefined;
-  if (latitude && longitude) {
-    eventLocation = `POINT(${longitude} ${latitude})`;
-    console.log('Created location POINT:', eventLocation);
-  }
-  
-  // Convert pace from minutes per km to seconds per km
-  const paceSecondsPerKm = runEvent.pace ? runEvent.pace * 60 : 300; // Default to 5 min/km
-  
-  const xanoEventData: Omit<XanoEvent, 'id' | 'created_at'> = {
-    title: runEvent.title || '',
+
+  const xanoEvent = {
+    title: runEvent.title || 'Untitled Run',
     description: runEvent.description || '',
     event_start: eventTimestamp,
-    pace_seconds_per_km: paceSecondsPerKm,
+    pace_seconds_per_km: runEvent.pace ? Math.round(runEvent.pace * 60) : 360,
     distance: runEvent.distance || 5,
     max_participants: runEvent.maxParticipants,
-    event_location: eventLocation,
-    event_address: runEvent.address || '',
-    location: runEvent.location || '', // Include location name
     business_id: businessId,
-    business_name: businessName || runEvent.hostName
+    business_name: businessName || runEvent.hostName || 'Unknown Business',
+    event_location: latitude && longitude ? `POINT(${longitude} ${latitude})` : null,
+    event_address: runEvent.address || runEvent.location || '',
+    business_phone: runEvent.hostContactInfo?.phone || '',
+    whatsappGroupLink: runEvent.whatsappGroupLink ? runEvent.whatsappGroupLink : undefined, // Explicitly handle undefined case
   };
+
+  console.log('Final Xano event data:', xanoEvent);
+  console.log('WhatsApp link being sent to API:', xanoEvent.whatsappGroupLink);
   
-  console.log('Final Xano event data:', xanoEventData);
-  return xanoEventData;
+  return xanoEvent;
+};
+
+// Helper function to determine pace category
+const determinePaceCategory = (pace: number): 'beginner' | 'intermediate' | 'advanced' => {
+  if (pace >= 8) return 'beginner';
+  if (pace >= 6) return 'intermediate';
+  return 'advanced';
+};
+
+// Helper functions to extract coordinates from geo_point
+const extractLatitudeFromGeoPoint = (geoPoint: string | object | null): number | undefined => {
+  if (!geoPoint) return undefined;
+  
+  // Handle object format (newer API response)
+  if (typeof geoPoint === 'object' && geoPoint !== null) {
+    const pointData = geoPoint as any;
+    if (pointData.data && typeof pointData.data.lat === 'number') {
+      return pointData.data.lat;
+    }
+  }
+  
+  // Handle string format ("POINT(lng lat)")
+  if (typeof geoPoint === 'string') {
+    const match = geoPoint.match(/POINT\(([^)]+)\)/);
+    if (match) {
+      const [lng, lat] = match[1].split(' ').map(Number);
+      return lat;
+    }
+  }
+  
+  return undefined;
+};
+
+const extractLongitudeFromGeoPoint = (geoPoint: string | object | null): number | undefined => {
+  if (!geoPoint) return undefined;
+  
+  // Handle object format (newer API response)
+  if (typeof geoPoint === 'object' && geoPoint !== null) {
+    const pointData = geoPoint as any;
+    if (pointData.data && typeof pointData.data.lng === 'number') {
+      return pointData.data.lng;
+    }
+  }
+  
+  // Handle string format ("POINT(lng lat)")
+  if (typeof geoPoint === 'string') {
+    const match = geoPoint.match(/POINT\(([^)]+)\)/);
+    if (match) {
+      const [lng, lat] = match[1].split(' ').map(Number);
+      return lng;
+    }
+  }
+  
+  return undefined;
+};
+
+// Transform Xano user to our User type
+export const transformXanoUser = (xanoUser: XanoUser): User => {
+  console.log('transformXanoUser input:', xanoUser);
+  
+  const user: User = {
+    id: xanoUser.id.toString(),
+    name: xanoUser.name,
+    email: xanoUser.email,
+    role: xanoUser.role as UserRole,
+    is_active: xanoUser.is_active
+  };
+
+  // Add role-specific details
+  if (xanoUser.role === 'business') {
+    // Handle business location properly
+    let businessLocation = '';
+    if (xanoUser.business_location) {
+      if (typeof xanoUser.business_location === 'string') {
+        businessLocation = xanoUser.business_location;
+      } else if (typeof xanoUser.business_location === 'object' && xanoUser.business_location.type === 'point') {
+        const { lat, lng } = xanoUser.business_location.data;
+        businessLocation = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    }
+
+    user.businessDetails = {
+      businessName: xanoUser.business_name || '',
+      businessLocation: businessLocation,
+      businessPhone: xanoUser.business_phone || '',
+      description: xanoUser.business_description || '',
+      socialLinks: {
+        website: xanoUser.website || '',
+        linkedin: xanoUser.linkedin || '',
+        instagram: xanoUser.instagram || '',
+        facebook: xanoUser.facebook || '',
+        twitter: xanoUser.twitter || '',
+      }
+    };
+  } else if (xanoUser.role === 'runner') {
+    user.runnerDetails = {
+      pace: xanoUser.pace_seconds_per_km,
+      experience: xanoUser.experience_level,
+      goals: xanoUser.running_goals
+    };
+  }
+
+  console.log('transformXanoUser output:', user);
+  return user;
+};
+
+// Transform Xano registration to our RunRegistration type
+export const transformXanoRegistration = (xanoReg: XanoRegistration): RunRegistration => {
+  return {
+    id: xanoReg.id.toString(),
+    runId: xanoReg.events_id.toString(),
+    userId: xanoReg.runner_id.toString(),
+    userName: xanoReg.user?.name || `User ${xanoReg.runner_id}`,
+    userEmail: xanoReg.user?.email || '',
+    userPace: 6, // Default pace, could be enhanced with actual user pace
+    registeredAt: xanoReg.created_at.toString(),
+    status: 'confirmed' as const
+  };
 };
