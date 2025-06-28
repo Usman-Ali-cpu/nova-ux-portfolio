@@ -1,7 +1,7 @@
+
 import { toast } from 'sonner';
 import { User, UserRole } from './types';
-import { authApi, usersApi } from '@/services/api';
-import { verificationApi } from '@/services/api/verificationService';
+import { authApi, usersApi, emailVerificationApi } from '@/services/api';
 import { transformXanoUser } from '@/services/dataTransforms';
 
 export const authService = {
@@ -57,7 +57,7 @@ export const authService = {
     businessDetails?: {
       businessName: string;
       businessLocation: string;
-      businessPhone?: string;
+      businessPhone?: string; // New field for business contact phone
       latitude?: number;
       longitude?: number;
     }
@@ -78,12 +78,9 @@ export const authService = {
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
-      // Extract user ID from response (assuming it's returned)
-      let userId: string | number = response.user?.id || email;
-      
-      // Send verification email using our custom service
+      // Don't store auth token yet - user needs to verify email first
       console.log('Step 2: Sending verification email...');
-      await verificationApi.sendVerificationEmail(email, userId);
+      await emailVerificationApi.sendVerificationEmail(email);
       console.log('Step 2 SUCCESS: Verification email sent');
       
       console.log('=== SIGNUP PROCESS COMPLETED - VERIFICATION REQUIRED ===');
@@ -125,28 +122,22 @@ export const authService = {
     }
   },
 
-  // Verify email with token using custom verification
+  // Verify email with token
   verifyEmail: async (token: string): Promise<User> => {
     console.log('=== EMAIL VERIFICATION PROCESS STARTED ===');
     console.log('authService.verifyEmail called with token:', token);
     
     try {
-      console.log('Step 1: Calling verificationApi.verifyUserWithToken...');
-      const response = await verificationApi.verifyUserWithToken(token);
+      console.log('Step 1: Calling emailVerificationApi.verifyEmail...');
+      const response = await emailVerificationApi.verifyEmail(token);
       console.log('Step 1 SUCCESS: Email verification response:', response);
       
       if (!response.success) {
         throw new Error(response.message || 'Email verification failed');
       }
       
-      // If verification includes user data, transform and return it
-      if (response.user) {
-        const user = transformXanoUser(response.user);
-        console.log('=== EMAIL VERIFICATION PROCESS COMPLETED ===');
-        return user;
-      }
-      
-      throw new Error('Verification successful but user data not returned');
+      console.log('=== EMAIL VERIFICATION PROCESS COMPLETED ===');
+      return response as any; // The API should return user data after verification
       
     } catch (error) {
       console.error('=== EMAIL VERIFICATION PROCESS FAILED ===');
@@ -161,10 +152,7 @@ export const authService = {
     console.log('authService.resendVerification called with email:', email);
     
     try {
-      // For resend, we need to get the user ID first
-      // This might require an API call to get user by email
-      // For now, using email as fallback
-      const response = await verificationApi.sendVerificationEmail(email, email);
+      const response = await emailVerificationApi.resendVerificationEmail(email);
       console.log('Resend verification response:', response);
       
       if (!response.success) {

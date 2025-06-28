@@ -1,6 +1,7 @@
+
 import { XanoEvent, XanoUser, XanoRegistration } from './api/types';
 import { RunEvent, RunRegistration } from '@/types';
-import { User, UserRole } from '@/contexts/auth/types'; // Import UserRole type
+import { User } from '@/contexts/auth/types'; // Use correct User type
 
 // Transform Xano event to our RunEvent type
 export const transformXanoEvent = (xanoEvent: XanoEvent): RunEvent => {
@@ -83,7 +84,7 @@ export const transformToXanoEvent = (
     event_location: latitude && longitude ? `POINT(${longitude} ${latitude})` : null,
     event_address: runEvent.address || runEvent.location || '',
     business_phone: runEvent.hostContactInfo?.phone || '',
-    whatsappGroupLink: runEvent.whatsappGroupLink ? runEvent.whatsappGroupLink : undefined, // Explicitly handle undefined case
+    whatsappGroupLink: runEvent.whatsappGroupLink || '', // Ensure WhatsApp link is included
   };
 
   console.log('Final Xano event data:', xanoEvent);
@@ -148,52 +149,25 @@ const extractLongitudeFromGeoPoint = (geoPoint: string | object | null): number 
 
 // Transform Xano user to our User type
 export const transformXanoUser = (xanoUser: XanoUser): User => {
-  console.log('transformXanoUser input:', xanoUser);
-  
-  const user: User = {
+  return {
     id: xanoUser.id.toString(),
-    name: xanoUser.name,
-    email: xanoUser.email,
-    role: xanoUser.role as UserRole,
-    is_active: xanoUser.is_active
-  };
-
-  // Add role-specific details
-  if (xanoUser.role === 'business') {
-    // Handle business location properly
-    let businessLocation = '';
-    if (xanoUser.business_location) {
-      if (typeof xanoUser.business_location === 'string') {
-        businessLocation = xanoUser.business_location;
-      } else if (typeof xanoUser.business_location === 'object' && xanoUser.business_location.type === 'point') {
-        const { lat, lng } = xanoUser.business_location.data;
-        businessLocation = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      }
-    }
-
-    user.businessDetails = {
+    name: xanoUser.name || '',
+    email: xanoUser.email || '',
+    role: (xanoUser.role as 'runner' | 'business') || 'runner',
+    businessDetails: xanoUser.role === 'business' ? {
       businessName: xanoUser.business_name || '',
-      businessLocation: businessLocation,
+      businessLocation: xanoUser.business_location || '',
       businessPhone: xanoUser.business_phone || '',
-      description: xanoUser.business_description || '',
+      description: '', // Add if available in schema
       socialLinks: {
         website: xanoUser.website || '',
-        linkedin: xanoUser.linkedin || '',
         instagram: xanoUser.instagram || '',
         facebook: xanoUser.facebook || '',
         twitter: xanoUser.twitter || '',
+        linkedin: xanoUser.linkedin || '',
       }
-    };
-  } else if (xanoUser.role === 'runner') {
-    user.runnerDetails = {
-      pace: xanoUser.pace_seconds_per_km,
-      experience: xanoUser.experience_level,
-      goals: xanoUser.running_goals
-    };
-  }
-
-  console.log('transformXanoUser output:', user);
-  return user;
+    } : undefined
+  };
 };
 
 // Transform Xano registration to our RunRegistration type

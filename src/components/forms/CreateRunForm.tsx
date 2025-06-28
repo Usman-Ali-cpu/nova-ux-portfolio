@@ -111,7 +111,7 @@ const CreateRunForm: React.FC<CreateRunFormProps> = ({ onRunCreated }) => {
         currentParticipants: 0,
         latitude,
         longitude,
-        whatsappGroupLink: values.whatsappGroupLink ? values.whatsappGroupLink : undefined,
+        whatsappGroupLink: values.whatsappGroupLink || undefined,
         hostContactInfo: {
           email: user?.email,
           businessName: user?.businessDetails?.businessName,

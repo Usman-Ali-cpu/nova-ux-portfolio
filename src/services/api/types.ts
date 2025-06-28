@@ -1,3 +1,4 @@
+
 export interface XanoUser {
   id: number;
   created_at: number;
@@ -5,18 +6,14 @@ export interface XanoUser {
   email: string;
   role: string;
   business_name?: string;
-  business_location?: string | { type: string; data: { lng: number; lat: number; } };
+  business_location?: string;
   business_phone?: string;
-  business_description?: string; // Add missing field
   instagram?: string;
   facebook?: string;
   twitter?: string;
   linkedin?: string;
   website?: string;
-  is_active?: boolean;
-  pace_seconds_per_km?: number;
-  experience_level?: string;
-  running_goals?: string;
+  is_active?: boolean; // Add missing is_active property
 }
 
 export interface XanoEvent {
