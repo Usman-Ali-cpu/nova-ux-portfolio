@@ -101,7 +101,7 @@ export const registrationService = {
             userName,
             userEmail,
             userPace: 6.0, // Default or could be fetched from user profile
-            registeredAt: (detailedReg.created_at || Date.now()).toString(),
+            registeredAt: detailedReg.created_at.toString(),
             status: 'confirmed' as const,
           });
         } catch (error) {
@@ -114,7 +114,7 @@ export const registrationService = {
             userName: `User ${reg.runner_id}`,
             userEmail: '',
             userPace: 6.0,
-            registeredAt: (reg.created_at || Date.now()).toString(),
+            registeredAt: reg.created_at.toString(),
             status: 'confirmed' as const,
           });
         }
@@ -156,7 +156,7 @@ export const registrationService = {
             userName,
             userEmail,
             userPace: 6.0, // Default or could be fetched from user profile
-            registeredAt: (detailedReg.created_at || Date.now()).toString(),
+            registeredAt: detailedReg.created_at.toString(),
             status: 'confirmed' as const,
           });
         } catch (error) {
@@ -169,7 +169,7 @@ export const registrationService = {
             userName: `User ${reg.runner_id}`,
             userEmail: '',
             userPace: 6.0,
-            registeredAt: (reg.created_at || Date.now()).toString(),
+            registeredAt: reg.created_at.toString(),
             status: 'confirmed' as const,
           });
         }
