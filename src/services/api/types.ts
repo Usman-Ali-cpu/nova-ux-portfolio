@@ -27,7 +27,7 @@ export interface XanoEvent {
   max_participants?: number;
   business_id: number;
   business_name: string;
-  event_location?: string; // geo_point as string
+  event_location?: string | { type: string; data: { lng: number; lat: number; } }; // Support both string and object formats
   event_address: string;
   business_phone?: string;
   whatsappGroupLink?: string; // Ensure this field is properly typed

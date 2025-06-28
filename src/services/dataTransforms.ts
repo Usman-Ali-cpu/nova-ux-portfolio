@@ -101,23 +101,49 @@ const determinePaceCategory = (pace: number): 'beginner' | 'intermediate' | 'adv
 };
 
 // Helper functions to extract coordinates from geo_point
-const extractLatitudeFromGeoPoint = (geoPoint: string | null): number | undefined => {
+const extractLatitudeFromGeoPoint = (geoPoint: string | object | null): number | undefined => {
   if (!geoPoint) return undefined;
-  const match = geoPoint.match(/POINT\(([^)]+)\)/);
-  if (match) {
-    const [lng, lat] = match[1].split(' ').map(Number);
-    return lat;
+  
+  // Handle object format (newer API response)
+  if (typeof geoPoint === 'object' && geoPoint !== null) {
+    const pointData = geoPoint as any;
+    if (pointData.data && typeof pointData.data.lat === 'number') {
+      return pointData.data.lat;
+    }
   }
+  
+  // Handle string format ("POINT(lng lat)")
+  if (typeof geoPoint === 'string') {
+    const match = geoPoint.match(/POINT\(([^)]+)\)/);
+    if (match) {
+      const [lng, lat] = match[1].split(' ').map(Number);
+      return lat;
+    }
+  }
+  
   return undefined;
 };
 
-const extractLongitudeFromGeoPoint = (geoPoint: string | null): number | undefined => {
+const extractLongitudeFromGeoPoint = (geoPoint: string | object | null): number | undefined => {
   if (!geoPoint) return undefined;
-  const match = geoPoint.match(/POINT\(([^)]+)\)/);
-  if (match) {
-    const [lng, lat] = match[1].split(' ').map(Number);
-    return lng;
+  
+  // Handle object format (newer API response)
+  if (typeof geoPoint === 'object' && geoPoint !== null) {
+    const pointData = geoPoint as any;
+    if (pointData.data && typeof pointData.data.lng === 'number') {
+      return pointData.data.lng;
+    }
   }
+  
+  // Handle string format ("POINT(lng lat)")
+  if (typeof geoPoint === 'string') {
+    const match = geoPoint.match(/POINT\(([^)]+)\)/);
+    if (match) {
+      const [lng, lat] = match[1].split(' ').map(Number);
+      return lng;
+    }
+  }
+  
   return undefined;
 };
 
