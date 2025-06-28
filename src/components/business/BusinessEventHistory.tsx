@@ -15,7 +15,7 @@ const BusinessEventHistory: React.FC<BusinessEventHistoryProps> = ({ businessId 
   const [events, setEvents] = useState<XanoEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     fetchBusinessEvents();
   }, [businessId]);
 

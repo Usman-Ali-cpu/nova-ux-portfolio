@@ -84,7 +84,7 @@ export const transformToXanoEvent = (
     event_location: latitude && longitude ? `POINT(${longitude} ${latitude})` : null,
     event_address: runEvent.address || runEvent.location || '',
     business_phone: runEvent.hostContactInfo?.phone || '',
-    whatsappGroupLink: runEvent.whatsappGroupLink ? runEvent.whatsappGroupLink : undefined, // Explicitly handle undefined case
+    whatsappGroupLink: runEvent.whatsappGroupLink || '', // Ensure WhatsApp link is included
   };
 
   console.log('Final Xano event data:', xanoEvent);

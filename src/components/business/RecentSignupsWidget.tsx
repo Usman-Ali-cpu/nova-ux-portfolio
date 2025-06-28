@@ -38,7 +38,7 @@ const RecentSignupsWidget: React.FC<RecentSignupsWidgetProps> = ({
                     <p className="text-muted-foreground text-xs">Run Registration</p>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(parseInt(participant.registeredAt)).toLocaleDateString()}
+                    {new Date(participant.registeredAt).toLocaleDateString()}
                   </span>
                 </div>
               ))}
