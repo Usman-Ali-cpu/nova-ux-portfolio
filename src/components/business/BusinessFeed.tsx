@@ -1,16 +1,22 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Plus, Calendar, MessageSquare } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { Loader2, Plus, X, Image as ImageIcon, Calendar, MessageSquare } from 'lucide-react';
 import { businessPostsApi } from '@/services/api/businessPostsService';
 import { XanoBusinessPost } from '@/services/api/types';
 import { toast } from 'sonner';
 
 interface BusinessFeedProps {
   businessId: string;
+}
+
+interface ImagePreview {
+  id: string;
+  file: File;
+  preview: string;
 }
 
 const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
@@ -22,6 +28,15 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
     title: '',
     content: ''
   });
+  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      // Clean up object URLs to avoid memory leaks
+      imagePreviews.forEach(image => URL.revokeObjectURL(image.preview));
+    };
+  }, [imagePreviews]);
 
   useEffect(() => {
     fetchPosts();
@@ -40,6 +55,29 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
     }
   };
 
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImagePreviews = Array.from(files).map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+
+    setImagePreviews(prev => [...prev, ...newImagePreviews]);
+  };
+
+  const removeImage = (id: string) => {
+    setImagePreviews(prev => {
+      const removed = prev.find(img => img.id === id);
+      if (removed) {
+        URL.revokeObjectURL(removed.preview);
+      }
+      return prev.filter(img => img.id !== id);
+    });
+  };
+
   const handleCreatePost = async () => {
     if (!newPost.title.trim() || !newPost.content.trim()) {
       toast.error('Please fill in both title and content');
@@ -48,14 +86,18 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
 
     setIsCreating(true);
     try {
-      const createdPost = await businessPostsApi.createBusinessPost({
-        business_id: Number(businessId),
-        title: newPost.title,
-        content: newPost.content,
-      });
+      const createdPost = await businessPostsApi.createBusinessPost(
+        {
+          business_id: Number(businessId),
+          title: newPost.title,
+          content: newPost.content,
+        },
+        imagePreviews.map(img => img.file)
+      );
       
       setPosts([createdPost, ...posts]);
       setNewPost({ title: '', content: '' });
+      setImagePreviews([]);
       setShowCreateForm(false);
       toast.success('Post created successfully!');
     } catch (error) {
@@ -106,27 +148,80 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
             />
             <Textarea
-              placeholder="Share what's happening with your business..."
+              placeholder="What's on your mind?"
+              className="min-h-[100px]"
               value={newPost.content}
-              onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-              rows={4}
+              onChange={(e) => setNewPost({...newPost, content: e.target.value})}
             />
-            <div className="flex gap-2">
-              <Button 
-                onClick={handleCreatePost}
-                disabled={isCreating}
-              >
-                {isCreating ? 'Publishing...' : 'Publish Post'}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewPost({ title: '', content: '' });
-                }}
-              >
-                Cancel
-              </Button>
+            
+            {/* Image previews */}
+            {imagePreviews.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {imagePreviews.map((image) => (
+                  <div key={image.id} className="relative group">
+                    <img 
+                      src={image.preview} 
+                      alt="Preview" 
+                      className="w-full h-24 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(image.id);
+                      }}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between mt-4">
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Add Images
+                </Button>
+              </div>
+              <div className="space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowCreateForm(false);
+                    setImagePreviews([]);
+                  }}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleCreatePost} 
+                  disabled={isCreating}
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Posting...
+                    </>
+                  ) : 'Post'}
+                </Button>
+              </div>
             </div>
           </CardContent>
         )}
@@ -172,7 +267,39 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
+                <p className="text-gray-700 whitespace-pre-wrap mb-4">{post.content}</p>
+                {post.images && post.images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {post.images.map((image) => {
+                      // Determine the image source with fallbacks
+                      const imageSrc = image.url;
+                      
+                      if (!imageSrc) {
+                        console.warn('No valid image source found for image:', image);
+                        return null;
+                      }
+                      
+                      return (
+                        <div key={image.id} className="relative group rounded-md overflow-hidden">
+                          <img 
+                            src={imageSrc}
+                            alt={image.alt_text || 'Post image'} 
+                            className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+                            onError={(e) => {
+                              // Fallback in case the image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = '/placeholder-image.jpg';
+                            }}
+                          />
+                          {image.alt_text && (
+                            <p className="mt-1 text-sm text-gray-500 truncate">{image.alt_text}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))

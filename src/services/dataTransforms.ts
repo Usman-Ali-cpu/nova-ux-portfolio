@@ -162,12 +162,23 @@ export const transformXanoUser = (xanoUser: XanoUser): User => {
   if (xanoUser.role === 'business') {
     // Handle business location properly
     let businessLocation = '';
+    let coordinates = null;
+    
     if (xanoUser.business_location) {
       if (typeof xanoUser.business_location === 'string') {
+        // If it's already a string, use it as is
         businessLocation = xanoUser.business_location;
       } else if (typeof xanoUser.business_location === 'object' && xanoUser.business_location.type === 'point') {
+        // Store coordinates for potential reverse geocoding
         const { lat, lng } = xanoUser.business_location.data;
+        coordinates = { lat, lng };
+        // Default to coordinates if no address is available
         businessLocation = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        
+        // If we have coordinates but no address, we could call a reverse geocoding service here
+        // For now, we'll just use the coordinates as a fallback
+        // In a real app, you might want to implement reverse geocoding here
+        // Example: businessLocation = await reverseGeocode(lat, lng);
       }
     }
 
