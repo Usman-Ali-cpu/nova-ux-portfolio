@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -85,7 +84,7 @@ const BusinessProfilePage = () => {
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {user?.businessDetails?.businessName || user?.name}
+                      {user.businessDetails?.businessName || user.name}
                     </h1>
                     {locationName && (
                       <p className="text-gray-600 flex items-center gap-2 mb-2">
@@ -125,8 +124,8 @@ const BusinessProfilePage = () => {
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
                 <p className="text-gray-600">
-                  {user?.businessDetails?.description || 
-                    (user?.businessDetails?.businessName ? 
+                  {user.businessDetails?.description || 
+                    (user.businessDetails?.businessName ? 
                       `Welcome to ${user.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
                       'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
                     )
@@ -138,8 +137,8 @@ const BusinessProfilePage = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
                   <div className="space-y-1">
-                    <p className="text-gray-600">{user?.email}</p>
-                    {user?.businessDetails?.businessPhone && (
+                    <p className="text-gray-600">{user.email}</p>
+                    {user.businessDetails?.businessPhone && (
                       <p className="text-gray-600">{user.businessDetails.businessPhone}</p>
                     )}
                   </div>
@@ -153,7 +152,7 @@ const BusinessProfilePage = () => {
                 </div>
               </div>
 
-              {user?.businessDetails?.socialLinks && (
+              {user.businessDetails?.socialLinks && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Social Media</h4>
                   <div className="flex flex-wrap gap-3">
@@ -191,15 +190,15 @@ const BusinessProfilePage = () => {
             </TabsList>
 
             <TabsContent value="feed">
-              <BusinessFeed businessId={user?.id} />
+              <BusinessFeed businessId={user.id} />
             </TabsContent>
 
             <TabsContent value="events">
-              <BusinessEventHistory businessId={user?.id} />
+              <BusinessEventHistory businessId={user.id} />
             </TabsContent>
 
             <TabsContent value="upcoming">
-              <BusinessUpcomingEvents businessId={user?.id} />
+              <BusinessUpcomingEvents businessId={user.id} />
             </TabsContent>
           </Tabs>
         </div>
