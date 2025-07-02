@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -132,7 +133,7 @@ const PublicBusinessProfilePage = () => {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {business.businessDetails?.businessName || business.name}
+                    {business?.businessDetails?.businessName || business?.name}
                   </h1>
                   {locationName && (
                     <p className="text-gray-600 flex items-center gap-2 mb-2">
@@ -163,8 +164,8 @@ const PublicBusinessProfilePage = () => {
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
                 <p className="text-gray-600">
-                  {business.businessDetails?.description || 
-                    (business.businessDetails?.businessName ? 
+                  {business?.businessDetails?.description || 
+                    (business?.businessDetails?.businessName ? 
                       `Welcome to ${business.businessDetails.businessName}! We're passionate about building community through running and bringing people together for healthy, active lifestyles.` :
                       'We\'re passionate about building community through running and bringing people together for healthy, active lifestyles.'
                     )
@@ -176,8 +177,8 @@ const PublicBusinessProfilePage = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
                   <div className="space-y-1">
-                    <p className="text-gray-600">{business.email}</p>
-                    {business.businessDetails?.businessPhone && (
+                    <p className="text-gray-600">{business?.email}</p>
+                    {business?.businessDetails?.businessPhone && (
                       <p className="text-gray-600">{business.businessDetails.businessPhone}</p>
                     )}
                   </div>
@@ -191,7 +192,7 @@ const PublicBusinessProfilePage = () => {
                 </div>
               </div>
 
-              {business.businessDetails?.socialLinks && (
+              {business?.businessDetails?.socialLinks && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Social Media</h4>
                   <div className="flex flex-wrap gap-3">
@@ -226,15 +227,15 @@ const PublicBusinessProfilePage = () => {
             </TabsList>
 
             <TabsContent value="upcoming">
-              <BusinessUpcomingEvents businessId={business.id} />
+              <BusinessUpcomingEvents businessId={business?.id} />
             </TabsContent>
 
             <TabsContent value="feed">
-              <BusinessFeed businessId={business.id} />
+              <BusinessFeed businessId={business?.id} />
             </TabsContent>
 
             <TabsContent value="events">
-              <BusinessEventHistory businessId={business.id} />
+              <BusinessEventHistory businessId={business?.id} />
             </TabsContent>
           </Tabs>
         </div>
