@@ -46,6 +46,7 @@ class BusinessPostsApiService extends BaseApiService {
       });
       
       // Map the response to our expected format, handling the nested image structure
+      console.log('BusinessPostsApiService.getPostImages: Response:', response);
       const mappedImages: XanoBusinessPostImage[] = response.map(item => ({
         id: item.id,
         created_at: item.created_at,
