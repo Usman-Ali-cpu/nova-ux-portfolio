@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,9 @@ import { Separator } from '@/components/ui/separator';
 import { User as AuthUser } from '@/contexts/auth/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { userProfileService } from '@/services/userProfileService';
+import { useGeocoding } from '@/hooks/useGeocoding';
 import { toast } from 'sonner';
+import { MapPin } from 'lucide-react';
 
 interface BusinessProfileEditDialogProps {
   isOpen: boolean;
@@ -23,11 +26,15 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
 }) => {
   const { setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const { geocodeAddress, latitude, longitude, isLoading: isGeocoding } = useGeocoding();
+  
   const [formData, setFormData] = useState({
     name: user.name || '',
     email: user.email || '',
     businessName: user.businessDetails?.businessName || '',
-    businessLocation: user.businessDetails?.businessLocation || '',
+    businessLocation: typeof user.businessDetails?.businessLocation === 'string' 
+      ? user.businessDetails.businessLocation 
+      : '',
     businessPhone: user.businessDetails?.businessPhone || '',
     description: user.businessDetails?.description || '',
     website: user.businessDetails?.socialLinks?.website || '',
@@ -37,6 +44,17 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
     twitter: user.businessDetails?.socialLinks?.twitter || '',
   });
 
+  // Geocode the business location when it changes
+  useEffect(() => {
+    if (formData.businessLocation && formData.businessLocation.length > 5) {
+      const timer = setTimeout(() => {
+        geocodeAddress(formData.businessLocation);
+      }, 800);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [formData.businessLocation, geocodeAddress]);
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
@@ -45,10 +63,14 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
       const profileData = {
         name: formData.name,
         email: formData.email,
-        role: user.role || 'business', // Ensure role is always provided
+        role: user.role || 'business',
         businessDetails: {
           businessName: formData.businessName,
           businessLocation: formData.businessLocation,
+          ...(latitude && longitude && {
+            latitude,
+            longitude
+          })
         },
         businessPhone: formData.businessPhone,
         businessDescription: formData.description,
@@ -123,12 +145,25 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
 
             <div>
               <Label htmlFor="businessLocation">Business Location</Label>
-              <Input
-                id="businessLocation"
-                value={formData.businessLocation}
-                onChange={(e) => handleChange('businessLocation', e.target.value)}
-                placeholder="123 Main St, City, State"
-              />
+              <div className="relative">
+                <Input
+                  id="businessLocation"
+                  value={formData.businessLocation}
+                  onChange={(e) => handleChange('businessLocation', e.target.value)}
+                  placeholder="123 Main St, City, State"
+                />
+                {isGeocoding && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <MapPin className="h-4 w-4 animate-pulse text-blue-500" />
+                  </div>
+                )}
+              </div>
+              {latitude && longitude && (
+                <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                  <MapPin className="h-3 w-3" />
+                  Coordinates: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                </p>
+              )}
             </div>
 
             <div>

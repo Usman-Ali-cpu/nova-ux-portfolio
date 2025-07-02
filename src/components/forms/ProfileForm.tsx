@@ -41,7 +41,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ onSuccess }) => {
       name: user?.name || "",
       email: user?.email || "",
       businessName: user?.businessDetails?.businessName || "",
-      businessLocation: user?.businessDetails?.businessLocation || "",
+      businessLocation: typeof user?.businessDetails?.businessLocation === 'string' 
+        ? user.businessDetails.businessLocation 
+        : "",
     }
   });
 
@@ -66,6 +68,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ onSuccess }) => {
       const profileData = {
         name: values.name,
         email: values.email,
+        role: user.role,
         ...(user.role === 'business' && {
           businessDetails: {
             businessName: values.businessName || '',

@@ -53,14 +53,22 @@ export const userProfileService = {
       // Handle business details for business users
       if (profileData.businessDetails) {
         updateData.business_name = profileData.businessDetails.businessName;
-        updateData.business_location = profileData.businessDetails.businessLocation;
         
-        // Add latitude and longitude if provided
-        if (profileData.businessDetails.latitude) {
-          updateData.business_latitude = profileData.businessDetails.latitude;
-        }
-        if (profileData.businessDetails.longitude) {
-          updateData.business_longitude = profileData.businessDetails.longitude;
+        // Handle location as GeoPoint object like events do
+        if (profileData.businessDetails.businessLocation) {
+          if (profileData.businessDetails.latitude && profileData.businessDetails.longitude) {
+            // Store as GeoPoint object
+            updateData.business_location = {
+              type: "point",
+              data: {
+                lat: profileData.businessDetails.latitude,
+                lng: profileData.businessDetails.longitude
+              }
+            };
+          } else {
+            // If no coordinates provided, store as string (will be geocoded later)
+            updateData.business_location = profileData.businessDetails.businessLocation;
+          }
         }
       }
       
