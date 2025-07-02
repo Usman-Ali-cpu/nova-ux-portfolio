@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { userProfileService } from '@/services/userProfileService';
 import { useGeocoding } from '@/hooks/useGeocoding';
 import { toast } from 'sonner';
-import { MapPin } from 'lucide-react';
+import { MapPin, Map } from 'lucide-react';
 
 interface BusinessProfileEditDialogProps {
   isOpen: boolean;
@@ -102,6 +101,14 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Open Google Maps in a new tab
+  const openInGoogleMaps = () => {
+    if (formData.businessLocation) {
+      const encodedAddress = encodeURIComponent(formData.businessLocation);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -112,6 +119,7 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
         <div className="space-y-6">
           <div className="space-y-4">
             <h4 className="font-medium">Basic Information</h4>
+            
             <div>
               <Label htmlFor="name">Contact Name</Label>
               <Input
@@ -143,27 +151,51 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
               />
             </div>
 
-            <div>
-              <Label htmlFor="businessLocation">Business Location</Label>
-              <div className="relative">
-                <Input
-                  id="businessLocation"
-                  value={formData.businessLocation}
-                  onChange={(e) => handleChange('businessLocation', e.target.value)}
-                  placeholder="123 Main St, City, State"
-                />
-                {isGeocoding && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <MapPin className="h-4 w-4 animate-pulse text-blue-500" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="h-5 w-5 text-gray-600" />
+                <h4 className="font-medium">Business Location</h4>
+              </div>
+              
+              <div>
+                <Label htmlFor="businessLocation">Address</Label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Input
+                      id="businessLocation"
+                      value={formData.businessLocation}
+                      onChange={(e) => handleChange('businessLocation', e.target.value)}
+                      placeholder="123 Main St, City, State, ZIP"
+                    />
+                    {isGeocoding && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <MapPin className="h-4 w-4 animate-pulse text-blue-500" />
+                      </div>
+                    )}
                   </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    onClick={openInGoogleMaps}
+                    disabled={!formData.businessLocation}
+                    title="View in Google Maps"
+                  >
+                    <Map className="h-4 w-4" />
+                  </Button>
+                </div>
+                {formData.businessLocation && formData.businessLocation.length > 5 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Address will be automatically geocoded for map display
+                  </p>
+                )}
+                {latitude && longitude && (
+                  <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                    <MapPin className="h-3 w-3" />
+                    Coordinates: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                  </p>
                 )}
               </div>
-              {latitude && longitude && (
-                <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
-                  <MapPin className="h-3 w-3" />
-                  Coordinates: {latitude.toFixed(4)}, {longitude.toFixed(4)}
-                </p>
-              )}
             </div>
 
             <div>
