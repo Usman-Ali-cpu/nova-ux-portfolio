@@ -10,15 +10,21 @@ class BusinessPostsApiService extends BaseApiService {
   async getBusinessPosts(businessId: number): Promise<XanoBusinessPost[]> {
     console.log('BusinessPostsApiService.getBusinessPosts: Fetching posts for business ID:', businessId);
     try {
-      const response = await this.request<XanoBusinessPost[]>(`/business_posts?business_id=${businessId}`, {
+      // First get all posts
+      const response = await this.request<XanoBusinessPost[]>('/business_posts', {
         method: 'GET',
       });
       
-      // Get images for each post in parallel
+      // Filter posts by businessId
+      const filteredPosts = response.filter(post => post.business_id === businessId);
+      console.log('BusinessPostsApiService.getBusinessPosts: Filtered posts:', filteredPosts);
+      
+      // Get images for each filtered post in parallel
       const postsWithImages = await Promise.all(
-        response.map(async (post) => {
+        filteredPosts.map(async (post) => {
           try {
             const images = await this.getPostImages(post.id);
+            console.log('BusinessPostsApiService.getBusinessPosts: Fetched images for post:', post.id, images);
             return { ...post, images };
           } catch (error) {
             console.error(`Error fetching images for post ${post.id}:`, error);
@@ -41,13 +47,17 @@ class BusinessPostsApiService extends BaseApiService {
    */
   async getPostImages(postId: number): Promise<XanoBusinessPostImage[]> {
     try {
-      const response = await this.request<any[]>(`/images?business_posts_id=${postId}`, {
+      // First get all images
+      const response = await this.request<any[]>('/images', {
         method: 'GET',
       });
       
-      // Map the response to our expected format, handling the nested image structure
-      console.log('BusinessPostsApiService.getPostImages: Response:', response);
-      const mappedImages: XanoBusinessPostImage[] = response.map(item => ({
+      // Filter images by postId
+      const filteredImages = response.filter(image => image.business_posts_id === postId);
+      console.log('BusinessPostsApiService.getPostImages: Filtered images for post', postId, ':', filteredImages);
+      
+      // Map the filtered response to our expected format
+      const mappedImages: XanoBusinessPostImage[] = filteredImages.map(item => ({
         id: item.id,
         created_at: item.created_at,
         business_posts_id: item.business_posts_id,
