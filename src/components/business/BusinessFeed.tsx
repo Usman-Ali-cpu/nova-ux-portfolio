@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -271,8 +272,8 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
                 {post.images && post.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {post.images.map((image) => {
-                      // Determine the image source with fallbacks
-                      const imageSrc = image.url;
+                      // Use the nested image.url structure from the API response
+                      const imageSrc = image.image?.url || image.url;
                       
                       if (!imageSrc) {
                         console.warn('No valid image source found for image:', image);
@@ -283,17 +284,19 @@ const BusinessFeed: React.FC<BusinessFeedProps> = ({ businessId }) => {
                         <div key={image.id} className="relative group rounded-md overflow-hidden">
                           <img 
                             src={imageSrc}
-                            alt={image.alt_text || 'Post image'} 
+                            alt={image.alt_text || image.image?.name || 'Post image'} 
                             className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
                             onError={(e) => {
                               // Fallback in case the image fails to load
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
-                              target.src = '/placeholder-image.jpg';
+                              target.src = '/placeholder.svg';
                             }}
                           />
-                          {image.alt_text && (
-                            <p className="mt-1 text-sm text-gray-500 truncate">{image.alt_text}</p>
+                          {(image.alt_text || image.image?.name) && (
+                            <p className="mt-1 text-sm text-gray-500 truncate">
+                              {image.alt_text || image.image?.name}
+                            </p>
                           )}
                         </div>
                       );

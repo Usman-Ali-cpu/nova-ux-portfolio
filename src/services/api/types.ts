@@ -1,3 +1,4 @@
+
 export interface XanoUser {
   id: number;
   created_at: number;
@@ -63,7 +64,16 @@ export interface XanoAuthResponse {
 
 // Add missing XanoBusinessPost interface
 export interface XanoImage {
+  access: string;
+  path: string;
   name: string;
+  type: string;
+  size: number;
+  mime: string;
+  meta: {
+    width: number;
+    height: number;
+  };
   url: string;
 }
 
@@ -71,7 +81,7 @@ export interface XanoBusinessPostImage {
   id: number;
   created_at: number;
   business_posts_id: number;
-  image: XanoImage;
+  image: XanoImage | null;
   // Backward compatible fields
   url?: string;
   name?: string;

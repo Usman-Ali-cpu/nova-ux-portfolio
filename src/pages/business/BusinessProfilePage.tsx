@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,10 +10,44 @@ import BusinessProfileEditDialog from '@/components/business/BusinessProfileEdit
 import BusinessFeed from '@/components/business/BusinessFeed';
 import BusinessEventHistory from '@/components/business/BusinessEventHistory';
 import BusinessUpcomingEvents from '@/components/business/BusinessUpcomingEvents';
+import { formatLocationForDisplay, formatLocationSync } from '@/utils/locationHelpers';
 
 const BusinessProfilePage = () => {
   const { user } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [locationName, setLocationName] = useState<string>('');
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchLocationName = async () => {
+      if (!user?.businessDetails?.businessLocation) {
+        if (isMounted) setLocationName('Location not specified');
+        return;
+      }
+      
+      // Set initial value synchronously
+      const syncLocation = formatLocationSync(user.businessDetails.businessLocation);
+      if (isMounted) setLocationName(syncLocation);
+      
+      // Try to get a better human-readable address asynchronously
+      try {
+        const asyncLocation = await formatLocationForDisplay(user.businessDetails.businessLocation);
+        if (isMounted && asyncLocation !== syncLocation) {
+          setLocationName(asyncLocation);
+        }
+      } catch (error) {
+        console.error('Failed to load location:', error);
+        // Keep the sync location if async fails
+      }
+    };
+    
+    fetchLocationName();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.businessDetails?.businessLocation]);
 
   if (!user || user.role !== 'business') {
     return (
@@ -35,29 +68,6 @@ const BusinessProfilePage = () => {
     }
   };
 
-  // Helper function to safely get business location string
-  const getBusinessLocationString = (): string => {
-    if (!user.businessDetails?.businessLocation) return '';
-    
-    const location = user.businessDetails.businessLocation;
-    
-    // If it's already a string, return it
-    if (typeof location === 'string') {
-      return location;
-    }
-    
-    // If it's an object with coordinates, return a formatted string
-    if (typeof location === 'object' && location !== null && 'type' in location && 'data' in location) {
-      const locationObj = location as { type: string; data: { lat: number; lng: number; } };
-      if (locationObj.type === 'point' && locationObj.data) {
-        const { lat, lng } = locationObj.data;
-        return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      }
-    }
-    
-    return '';
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -76,10 +86,10 @@ const BusinessProfilePage = () => {
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                       {user.businessDetails?.businessName || user.name}
                     </h1>
-                    {getBusinessLocationString() && (
+                    {locationName && (
                       <p className="text-gray-600 flex items-center gap-2 mb-2">
                         <MapPin className="w-4 h-4" />
-                        {getBusinessLocationString()}
+                        {locationName}
                       </p>
                     )}
                     <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -137,7 +147,7 @@ const BusinessProfilePage = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
                   <p className="text-gray-600">
-                    {getBusinessLocationString() || 'Location not specified'}
+                    {locationName || 'Location not specified'}
                   </p>
                 </div>
               </div>

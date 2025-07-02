@@ -41,12 +41,24 @@ class BusinessPostsApiService extends BaseApiService {
    */
   async getPostImages(postId: number): Promise<XanoBusinessPostImage[]> {
     try {
-      const response = await this.request<XanoBusinessPostImage[]>(`/images?business_posts_id=${postId}`, {
+      const response = await this.request<any[]>(`/images?business_posts_id=${postId}`, {
         method: 'GET',
       });
-      console.log("Testing out", response)
-      console.log(`Fetched ${response.length} images for post ${postId}`);
-      return response;
+      
+      // Map the response to our expected format, handling the nested image structure
+      const mappedImages: XanoBusinessPostImage[] = response.map(item => ({
+        id: item.id,
+        created_at: item.created_at,
+        business_posts_id: item.business_posts_id,
+        image: item.image,
+        // Extract URL from the nested image object for backward compatibility
+        url: item.image?.url || '',
+        name: item.image?.name || '',
+        alt_text: item.image?.name || '',
+      }));
+      
+      console.log(`Fetched ${mappedImages.length} images for post ${postId}:`, mappedImages);
+      return mappedImages;
     } catch (error) {
       console.error(`Error fetching images for post ${postId}:`, error);
       return [];

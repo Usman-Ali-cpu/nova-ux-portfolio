@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -13,17 +12,51 @@ import { usersApi } from '@/services/api';
 import { transformXanoUser } from '@/services/dataTransforms';
 import { User as AuthUser } from '@/contexts/auth/types';
 import { toast } from 'sonner';
+import { formatLocationForDisplay, formatLocationSync } from '@/utils/locationHelpers';
 
 const PublicBusinessProfilePage = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const [business, setBusiness] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [locationName, setLocationName] = useState<string>('');
 
   useEffect(() => {
     if (businessId) {
       fetchBusinessProfile();
     }
   }, [businessId]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchLocationName = async () => {
+      if (!business?.businessDetails?.businessLocation) {
+        if (isMounted) setLocationName('Location not specified');
+        return;
+      }
+      
+      // Set initial value synchronously
+      const syncLocation = formatLocationSync(business.businessDetails.businessLocation);
+      if (isMounted) setLocationName(syncLocation);
+      
+      // Try to get a better human-readable address asynchronously
+      try {
+        const asyncLocation = await formatLocationForDisplay(business.businessDetails.businessLocation);
+        if (isMounted && asyncLocation !== syncLocation) {
+          setLocationName(asyncLocation);
+        }
+      } catch (error) {
+        console.error('Failed to load location:', error);
+        // Keep the sync location if async fails
+      }
+    };
+    
+    fetchLocationName();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [business?.businessDetails?.businessLocation]);
 
   const fetchBusinessProfile = async () => {
     try {
@@ -101,10 +134,10 @@ const PublicBusinessProfilePage = () => {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {business.businessDetails?.businessName || business.name}
                   </h1>
-                  {business.businessDetails?.businessLocation && (
+                  {locationName && (
                     <p className="text-gray-600 flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4" />
-                      {business.businessDetails.businessLocation}
+                      {locationName}
                     </p>
                   )}
                   <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -153,7 +186,7 @@ const PublicBusinessProfilePage = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
                   <p className="text-gray-600">
-                    {business.businessDetails?.businessLocation || 'Location not specified'}
+                    {locationName || 'Location not specified'}
                   </p>
                 </div>
               </div>
