@@ -120,12 +120,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({ user }) => {
             <div className="flex flex-col">
               <h3 className="text-xl font-semibold text-gray-900">{user?.name}</h3>
               <p className="text-sm text-gray-500">{user?.role}</p>
-              {locationName !== null && (
-                <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <MapPin className="w-4 h-4 mr-1 text-gray-500" />
-                  <span>{locationName}</span>
-                </div>
-              )}
+             
               <p className="text-sm text-gray-500 mt-1">Manage your business profile and updates</p>
             </div>
           </div>
