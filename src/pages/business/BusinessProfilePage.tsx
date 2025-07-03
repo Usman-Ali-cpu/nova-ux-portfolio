@@ -86,12 +86,12 @@ const BusinessProfilePage = () => {
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                       {user.businessDetails?.businessName || user.name}
                     </h1>
-                    {locationName && (
+                    {/* {locationName && (
                       <p className="text-gray-600 flex items-center gap-2 mb-2">
                         <MapPin className="w-4 h-4" />
                         {locationName}
                       </p>
-                    )}
+                    )} */}
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
@@ -144,12 +144,12 @@ const BusinessProfilePage = () => {
                   </div>
                 </div>
                 
-                <div>
+                {/* <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
                   <p className="text-gray-600">
                     {locationName || 'Location not specified'}
                   </p>
-                </div>
+                </div> */}
               </div>
 
               {user.businessDetails?.socialLinks && (

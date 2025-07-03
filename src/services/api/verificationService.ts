@@ -155,7 +155,7 @@ class VerificationApiService extends BaseApiService {
       // Send email via SendGrid API directly
       try {
         const tokenExpirationHours = TOKEN_EXPIRATION_HOURS;
-        const response = await fetch('https://send-email-function.netlify.app/.netlify/functions/send-email', {
+        const response = await fetch('https://send-emails-beta.vercel.app/api/send-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -41,6 +41,7 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
     instagram: user.businessDetails?.socialLinks?.instagram || '',
     facebook: user.businessDetails?.socialLinks?.facebook || '',
     twitter: user.businessDetails?.socialLinks?.twitter || '',
+    address: user.businessDetails?.businessLocation || '',
   });
 
   // Geocode the business location when it changes
@@ -69,7 +70,8 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
           ...(latitude && longitude && {
             latitude,
             longitude
-          })
+          }),
+          address: formData.address,
         },
         businessPhone: formData.businessPhone,
         businessDescription: formData.description,

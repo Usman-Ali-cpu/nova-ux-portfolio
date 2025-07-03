@@ -11,6 +11,7 @@ export interface UpdateProfileData {
     businessLocation: string;
     latitude?: number;
     longitude?: number;
+    address?: string;
   };
   instagram?: string;
   businessPhone?: string;
