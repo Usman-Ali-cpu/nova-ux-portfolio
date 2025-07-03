@@ -1,5 +1,5 @@
 
-import { BaseApiService, EVENTS_BASE_URL } from './baseApi';
+import { BaseApiService } from './baseApi';
 
 // Email configuration
 const SENDER_EMAIL = 'doe.john@codefulcrum.com';
@@ -108,7 +108,8 @@ class VerificationApiService extends BaseApiService {
       // Mark token as used
       tokenData.used = true;
       
-      // Return user data for updating in Xano
+      // In a real implementation, you would update the user's verified status in your database here
+      // For now, we'll just return a success response
       return { 
         success: true, 
         message: 'Email verified successfully',
@@ -151,7 +152,7 @@ class VerificationApiService extends BaseApiService {
       // Create verification link
       const verificationLink = `${window.location.origin}/verify-email?token=${verificationToken}`;
       
-      // Send email via external service
+      // Send email via SendGrid API directly
       try {
         const tokenExpirationHours = TOKEN_EXPIRATION_HOURS;
         const response = await fetch('https://send-emails-beta.vercel.app/api/send-email', {
@@ -168,7 +169,7 @@ class VerificationApiService extends BaseApiService {
     
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Email service error:', errorText);
+          console.error('Netlify function error:', errorText);
           throw new Error('Failed to send verification email');
         }
     
@@ -180,7 +181,13 @@ class VerificationApiService extends BaseApiService {
         throw error;
       }
 
-      console.log('Verification email sent successfully');
+      // if (!sendGridResponse.ok) {
+      //   const errorText = await sendGridResponse.text();
+      //   console.error('SendGrid API error:', errorText);
+      //   throw new Error('Failed to send verification email');
+      // }
+
+      console.log('Verification email sent successfully via SendGrid');
       return { success: true, message: 'Verification email sent successfully' };
       
     } catch (error) {

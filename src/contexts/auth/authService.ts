@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { User, UserRole } from './types';
 import { authApi, usersApi } from '@/services/api';
@@ -79,23 +78,13 @@ export const authService = {
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
-      // Generate verification token and update user
-      console.log('Step 2: Generating verification token and updating user...');
-      const tokenResult = await verificationApi.generateVerificationToken(response.user?.id || email, email);
+      // Extract user ID from response (assuming it's returned)
+      let userId: string | number = response.user?.id || email;
       
-      if (tokenResult.success) {
-        // Update user with verification token and set is_active to false
-        await usersApi.updateUser(String(response.user?.id || email), {
-          verification_token: tokenResult.token,
-          is_active: false
-        });
-        console.log('Step 2 SUCCESS: User updated with verification token');
-        
-        // Send verification email
-        console.log('Step 3: Sending verification email...');
-        await verificationApi.sendVerificationEmail(email, response.user?.id || email);
-        console.log('Step 3 SUCCESS: Verification email sent');
-      }
+      // Send verification email using our custom service
+      console.log('Step 2: Sending verification email...');
+      await verificationApi.sendVerificationEmail(email, userId);
+      console.log('Step 2 SUCCESS: Verification email sent');
       
       console.log('=== SIGNUP PROCESS COMPLETED - VERIFICATION REQUIRED ===');
       return { requiresVerification: true, email };
@@ -136,35 +125,28 @@ export const authService = {
     }
   },
 
-  // Verify email with token using Xano user API
+  // Verify email with token using custom verification
   verifyEmail: async (token: string): Promise<User> => {
     console.log('=== EMAIL VERIFICATION PROCESS STARTED ===');
     console.log('authService.verifyEmail called with token:', token);
     
     try {
-      console.log('Step 1: Finding user with verification token...');
+      console.log('Step 1: Calling verificationApi.verifyUserWithToken...');
+      const response = await verificationApi.verifyUserWithToken(token);
+      console.log('Step 1 SUCCESS: Email verification response:', response);
       
-      // We need to find the user by verification token and update their status
-      // Since we can't directly query by verification_token, we'll use our verification service
-      // to validate the token and get the associated user info
-      const verificationResult = await verificationApi.verifyUserWithToken(token);
-      console.log('Step 1 SUCCESS: Token verification result:', verificationResult);
-      
-      if (!verificationResult.success || !verificationResult.user) {
-        throw new Error(verificationResult.message || 'Invalid verification token');
+      if (!response.success) {
+        throw new Error(response.message || 'Email verification failed');
       }
       
-      console.log('Step 2: Updating user status to active...');
-      // Update the user to set is_active to true and clear verification_token
-      const updatedUser = await usersApi.updateUser(String(verificationResult.user.id), {
-        is_active: true,
-        verification_token: null
-      });
-      console.log('Step 2 SUCCESS: User updated to active status');
+      // If verification includes user data, transform and return it
+      if (response.user) {
+        const user = transformXanoUser(response.user);
+        console.log('=== EMAIL VERIFICATION PROCESS COMPLETED ===');
+        return user;
+      }
       
-      const user = transformXanoUser(updatedUser);
-      console.log('=== EMAIL VERIFICATION PROCESS COMPLETED ===');
-      return user;
+      throw new Error('Verification successful but user data not returned');
       
     } catch (error) {
       console.error('=== EMAIL VERIFICATION PROCESS FAILED ===');
