@@ -7,7 +7,7 @@ class UsersApiService extends BaseApiService {
     console.log('UsersApiService.getCurrentUser: Fetching current user data...');
     const response = await this.request<XanoUser>('/auth/me', {
       method: 'GET',
-    }, AUTH_BASE_URL); // Use AUTH_BASE_URL instead of EVENTS_BASE_URL
+    }, AUTH_BASE_URL);
     
     console.log('UsersApiService.getCurrentUser: Response received:', response);
     return response;
@@ -16,46 +16,50 @@ class UsersApiService extends BaseApiService {
   async getUser(userId: number): Promise<XanoUser> {
     console.log('UsersApiService.getUser: Fetching user data for ID:', userId);
     
-    // Try multiple possible endpoints since the API structure isn't clear
-    const possibleEndpoints = [
-      `/auth/user/${userId}`,
-      `/user/${userId}`,
-      `/user/${userId}`,
-      `/runners/${userId}`
-    ];
-    
-    for (const endpoint of possibleEndpoints) {
-      try {
-        console.log(`Trying endpoint: ${endpoint}`);
-        const response = await this.request<XanoUser>(endpoint, {
-          method: 'GET',
-        }, AUTH_BASE_URL);
-        
-        console.log('UsersApiService.getUser: Success with endpoint:', endpoint, 'Response:', response);
-        return response;
-      } catch (error) {
-        console.log(`Failed with endpoint ${endpoint}:`, error);
-        // Continue to next endpoint
-      }
+    try {
+      const response = await this.request<XanoUser>(`/user/${userId}`, {
+        method: 'GET',
+      }, EVENTS_BASE_URL);
+      
+      console.log('UsersApiService.getUser: Success with response:', response);
+      return response;
+    } catch (error) {
+      console.error('UsersApiService.getUser: Failed for user ID:', userId, error);
+      // Return fallback with required properties
+      return {
+        id: userId,
+        created_at: Date.now(),
+        name: `User ${userId}`,
+        email: '',
+        role: 'runner'
+      };
     }
-    
-    // If all endpoints fail, return fallback with required created_at property
-    console.error('UsersApiService.getUser: All endpoints failed for user ID:', userId);
-    return {
-      id: userId,
-      created_at: Date.now(), // Add missing created_at property
-      name: `User ${userId}`,
-      email: '',
-      role: 'runner'
-    };
   }
 
-  async updateUser(userId: string, userData: Partial<XanoUser>): Promise<XanoUser> {
+  async updateUser(userId: number, userData: Partial<XanoUser>): Promise<XanoUser> {
     console.log('UsersApiService.updateUser: Updating user data for ID:', userId, 'Data:', userData);
     return this.request<XanoUser>(`/user/${userId}`, {
       method: 'PATCH',
       body: JSON.stringify(userData),
-    }, EVENTS_BASE_URL); // Use EVENTS_BASE_URL for user operations
+    }, EVENTS_BASE_URL);
+  }
+
+  async getUserByVerificationToken(token: string): Promise<XanoUser | null> {
+    console.log('UsersApiService.getUserByVerificationToken: Looking up user by token');
+    try {
+      // Get all users and find the one with matching verification token
+      // Note: This is not ideal for production, but works for the current setup
+      const response = await this.request<XanoUser[]>('/user', {
+        method: 'GET',
+      }, EVENTS_BASE_URL);
+      
+      const user = response.find(u => u.verification_token === token);
+      console.log('UsersApiService.getUserByVerificationToken: Found user:', user?.id || 'none');
+      return user || null;
+    } catch (error) {
+      console.error('UsersApiService.getUserByVerificationToken: Error:', error);
+      return null;
+    }
   }
 }
 

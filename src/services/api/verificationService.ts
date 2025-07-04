@@ -1,21 +1,11 @@
 
 import { BaseApiService, EVENTS_BASE_URL } from './baseApi';
+import { usersApi } from './usersService';
 
 // Email configuration
 const SENDER_EMAIL = 'doe.john@codefulcrum.com';
 const SENDER_NAME = 'RunConnect Team';
-const SENDGRID_API_KEY = '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';
-const TOKEN_EXPIRATION_HOURS = 24; // Token expires in 24 hours
-
-// In-memory storage for verification tokens (replace with database in production)
-interface VerificationTokenData {
-  userId: string | number;
-  email: string;
-  expiresAt: Date;
-  used: boolean;
-}
-
-const verificationTokenStore: Record<string, VerificationTokenData> = {};
+const TOKEN_EXPIRATION_HOURS = 24;
 
 class VerificationApiService extends BaseApiService {
   /**
@@ -28,41 +18,22 @@ class VerificationApiService extends BaseApiService {
   }
 
   /**
-   * Clean up expired tokens from the store
+   * Generate verification token and update user in Xano
    */
-  private cleanupExpiredTokens(): void {
-    const now = new Date();
-    Object.keys(verificationTokenStore).forEach(token => {
-      if (verificationTokenStore[token].expiresAt < now) {
-        delete verificationTokenStore[token];
-      }
-    });
-  }
-
-  /**
-   * Generate verification token and store in memory
-   */
-  async generateVerificationToken(userId: string | number, email: string): Promise<{ token: string; success: boolean }> {
+  async generateVerificationToken(userId: number, email: string): Promise<{ token: string; success: boolean }> {
     console.log('VerificationApiService.generateVerificationToken: Generating token for user:', userId, 'email:', email);
     
     try {
-      // Clean up expired tokens first
-      this.cleanupExpiredTokens();
-      
       // Generate a new token
       const token = this.generateToken();
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + TOKEN_EXPIRATION_HOURS);
       
-      // Store the token with proper user ID
-      verificationTokenStore[token] = {
-        userId: userId, // Keep the actual user ID (number or string)
-        email,
-        expiresAt,
-        used: false
-      };
+      // Update user in Xano with the verification token and set is_active to false
+      await usersApi.updateUser(userId, {
+        verification_token: token,
+        is_active: false
+      });
       
-      console.log('Generated verification token:', token, 'for user ID:', userId);
+      console.log('Generated and stored verification token for user ID:', userId);
       return { token, success: true };
       
     } catch (error) {
@@ -72,49 +43,42 @@ class VerificationApiService extends BaseApiService {
   }
 
   /**
-   * Verify user with token
+   * Verify user with token by looking up in Xano database
    */
   async verifyUserWithToken(token: string): Promise<{ success: boolean; message: string; user?: any }> {
     console.log('VerificationApiService.verifyUserWithToken: Verifying token:', token);
     
     try {
-      const tokenData = verificationTokenStore[token];
+      // Find user by verification token in Xano
+      const user = await usersApi.getUserByVerificationToken(token);
       
-      // Check if token exists
-      if (!tokenData) {
+      if (!user) {
         return { 
           success: false, 
           message: 'Invalid or expired verification token' 
         };
       }
       
-      // Check if token is already used
-      if (tokenData.used) {
+      // Check if user is already verified
+      if (user.is_active) {
         return { 
           success: false, 
-          message: 'This verification link has already been used' 
+          message: 'This email has already been verified' 
         };
       }
       
-      // Check if token is expired
-      if (tokenData.expiresAt < new Date()) {
-        delete verificationTokenStore[token];
-        return { 
-          success: false, 
-          message: 'Verification link has expired' 
-        };
-      }
+      // Update user to set is_active to true and clear verification token
+      await usersApi.updateUser(user.id, {
+        is_active: true,
+        verification_token: null
+      });
       
-      // Mark token as used
-      tokenData.used = true;
-      
-      // Return user data for updating in Xano
       return { 
         success: true, 
         message: 'Email verified successfully',
         user: {
-          id: tokenData.userId, // This should be the actual numeric user ID
-          email: tokenData.email,
+          id: user.id,
+          email: user.email,
           verified: true
         }
       };
@@ -131,11 +95,11 @@ class VerificationApiService extends BaseApiService {
   /**
    * Send verification email using external service
    */
-  async sendVerificationEmail(email: string, userId: string | number): Promise<{ success: boolean; message: string }> {
+  async sendVerificationEmail(email: string, userId: number): Promise<{ success: boolean; message: string }> {
     console.log('VerificationApiService.sendVerificationEmail: Sending verification email to:', email, 'for user ID:', userId);
     
     try {
-      // Generate the verification token
+      // Generate the verification token and store it in Xano
       const tokenResponse = await this.generateVerificationToken(userId, email);
       
       if (!tokenResponse.success) {
@@ -150,7 +114,6 @@ class VerificationApiService extends BaseApiService {
       
       // Send email via external service
       try {
-        const tokenExpirationHours = TOKEN_EXPIRATION_HOURS;
         const response = await fetch('https://send-emails-beta.vercel.app/api/send-email', {
           method: 'POST',
           headers: {
@@ -159,7 +122,7 @@ class VerificationApiService extends BaseApiService {
           body: JSON.stringify({
             email,
             verificationLink,
-            tokenExpirationHours,
+            tokenExpirationHours: TOKEN_EXPIRATION_HOURS,
           }),
         });
     

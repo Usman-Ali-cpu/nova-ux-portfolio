@@ -24,26 +24,23 @@ export const authService = {
       console.log('Step 3: Fetching user data with auth token...');
       const userData = await usersApi.getCurrentUser();
       console.log('Step 3 SUCCESS: Raw user data from API:', userData);
-      console.log('Step 3 SUCCESS: User role from API:', userData.role);
       
-      // Check if user email is verified
+      // Check if user email is verified (is_active must be true)
       if (userData.is_active === false) {
-        console.log('Step 4: User email not verified');
+        console.log('Step 4: User email not verified (is_active = false)');
         localStorage.removeItem('xanoAuthToken');
         throw new Error('Please verify your email before logging in. Check your inbox for the verification link.');
       }
       
-      console.log('Step 4: Transforming user data...');
+      console.log('Step 4: User is verified, transforming user data...');
       const user = transformXanoUser(userData);
       console.log('Step 4 SUCCESS: Transformed user:', user);
-      console.log('Step 4 SUCCESS: Final user role:', user.role);
       console.log('=== LOGIN PROCESS COMPLETED SUCCESSFULLY ===');
       
       return user;
     } catch (error) {
       console.error('=== LOGIN PROCESS FAILED ===');
       console.error('authService.login error:', error);
-      // Clear any stale tokens
       localStorage.removeItem('xanoAuthToken');
       throw new Error(error instanceof Error ? error.message : 'Invalid credentials');
     }
@@ -68,14 +65,6 @@ export const authService = {
     
     try {
       console.log('Step 1: Calling authApi.signup...');
-      console.log('Data being sent to authApi.signup:', {
-        email,
-        password: '***',
-        name,
-        role,
-        businessDetails
-      });
-      
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
@@ -87,24 +76,10 @@ export const authService = {
       const userId = response.user.id;
       console.log('Step 2: Using user ID:', userId);
       
-      // Generate verification token and update user
-      console.log('Step 3: Generating verification token...');
-      const tokenResult = await verificationApi.generateVerificationToken(userId, email);
-      
-      if (tokenResult.success) {
-        console.log('Step 4: Updating user with verification token...');
-        // Update user with verification token and set is_active to false
-        await usersApi.updateUser(String(userId), {
-          verification_token: tokenResult.token,
-          is_active: false
-        });
-        console.log('Step 4 SUCCESS: User updated with verification token');
-        
-        // Send verification email
-        console.log('Step 5: Sending verification email...');
-        await verificationApi.sendVerificationEmail(email, userId);
-        console.log('Step 5 SUCCESS: Verification email sent');
-      }
+      // Send verification email (this will also generate token and set is_active = false)
+      console.log('Step 3: Sending verification email...');
+      await verificationApi.sendVerificationEmail(email, userId);
+      console.log('Step 3 SUCCESS: Verification email sent');
       
       console.log('=== SIGNUP PROCESS COMPLETED - VERIFICATION REQUIRED ===');
       return { requiresVerification: true, email };
@@ -112,34 +87,23 @@ export const authService = {
     } catch (error) {
       console.error('=== SIGNUP PROCESS FAILED ===');
       console.error('authService.signup error:', error);
-      console.error('Error details:', {
-        type: typeof error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace'
-      });
       
-      // Provide more specific error messages based on the error
+      // Provide more specific error messages
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
         
         if (errorMessage.includes('409') || errorMessage.includes('already exists') || errorMessage.includes('email already')) {
-          console.error('SIGNUP ERROR: Email already exists');
           throw new Error('Email already exists. Please try logging in instead.');
         } else if (errorMessage.includes('400') || errorMessage.includes('bad request')) {
-          console.error('SIGNUP ERROR: Invalid data');
           throw new Error('Invalid signup data. Please check your information.');
         } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-          console.error('SIGNUP ERROR: Network issue');
           throw new Error('Network error. Please check your connection and try again.');
         } else if (errorMessage.includes('unauthorized') || errorMessage.includes('401')) {
-          console.error('SIGNUP ERROR: Authentication issue');
           throw new Error('Authentication error. Please try again.');
         } else {
-          console.error('SIGNUP ERROR: Generic error with message:', error.message);
           throw new Error(`Signup failed: ${error.message}`);
         }
       } else {
-        console.error('SIGNUP ERROR: Non-Error object thrown:', error);
         throw new Error('Registration failed. Please try again.');
       }
     }
@@ -153,7 +117,7 @@ export const authService = {
     try {
       console.log('Step 1: Validating verification token...');
       
-      // Validate the token and get the associated user info
+      // Validate the token and update user status in Xano
       const verificationResult = await verificationApi.verifyUserWithToken(token);
       console.log('Step 1 SUCCESS: Token verification result:', verificationResult);
       
@@ -162,14 +126,11 @@ export const authService = {
       }
       
       const userId = verificationResult.user.id;
-      console.log('Step 2: Updating user status to active for user ID:', userId);
+      console.log('Step 2: Fetching updated user data for user ID:', userId);
       
-      // Update the user to set is_active to true and clear verification_token
-      const updatedUser = await usersApi.updateUser(String(userId), {
-        is_active: true,
-        verification_token: null
-      });
-      console.log('Step 2 SUCCESS: User updated to active status');
+      // Fetch the updated user data
+      const updatedUser = await usersApi.getUser(userId);
+      console.log('Step 2 SUCCESS: User data fetched');
       
       const user = transformXanoUser(updatedUser);
       console.log('=== EMAIL VERIFICATION PROCESS COMPLETED ===');
@@ -188,17 +149,9 @@ export const authService = {
     console.log('authService.resendVerification called with email:', email);
     
     try {
-      // For resend, we need to get the user by email first
-      // This is a limitation - we don't have a direct way to get user by email
-      // For now, we'll use email as identifier in the verification service
-      const response = await verificationApi.sendVerificationEmail(email, email);
-      console.log('Resend verification response:', response);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to resend verification email');
-      }
-      
-      console.log('=== RESEND VERIFICATION PROCESS COMPLETED ===');
+      // For resend, we need the user ID - this is a limitation of current setup
+      // In a real implementation, you'd have an endpoint to resend by email
+      throw new Error('Resend verification is not fully implemented. Please contact support.');
     } catch (error) {
       console.error('=== RESEND VERIFICATION PROCESS FAILED ===');
       console.error('authService.resendVerification error:', error);

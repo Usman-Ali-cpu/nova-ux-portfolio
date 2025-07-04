@@ -44,7 +44,9 @@ class AuthApiService extends BaseApiService {
         businessDetails?.latitude && businessDetails?.longitude 
           ? `POINT(${businessDetails.longitude} ${businessDetails.latitude})`
           : businessDetails?.businessLocation || ''
-      ) : ''
+      ) : '',
+      // Set is_active to false by default - user must verify email first
+      is_active: false
     };
 
     console.log('Final signup data being sent:', signupData);
