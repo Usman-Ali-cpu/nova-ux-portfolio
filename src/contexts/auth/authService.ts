@@ -68,9 +68,10 @@ export const authService = {
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
-      // Ensure we have a valid user ID from the response
-      if (!response.user?.id) {
-        throw new Error('Failed to create user - no user ID returned');
+      // Ensure we have a valid user from the response
+      if (!response.user || !response.user.id) {
+        console.error('Step 1 FAILED: No user data in response:', response);
+        throw new Error('Signup failed - no user data returned from server');
       }
       
       const userId = response.user.id;

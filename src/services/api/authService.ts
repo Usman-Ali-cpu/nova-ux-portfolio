@@ -51,19 +51,31 @@ class AuthApiService extends BaseApiService {
 
     console.log('Final signup data being sent:', signupData);
 
-    const response = await this.request<XanoAuthResponse>('/auth/signup', {
+    const response = await this.request<any>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(signupData),
     }, AUTH_BASE_URL);
 
     console.log('Raw signup response from Xano:', response);
     
-    // Ensure the response has the expected structure
-    if (!response.user?.id) {
-      throw new Error('Signup failed - no user ID returned from server');
+    // The auth/signup endpoint might return a different structure
+    // Let's handle both possible response formats
+    if (response.user && response.user.id) {
+      // Standard format with user object
+      return {
+        authToken: response.authToken || '',
+        user: response.user
+      };
+    } else if (response.id) {
+      // Direct user object format
+      return {
+        authToken: response.authToken || '',
+        user: response
+      };
+    } else {
+      console.error('Unexpected signup response format:', response);
+      throw new Error('Signup failed - unexpected response format from server');
     }
-    
-    return response;
   }
 }
 
