@@ -68,8 +68,9 @@ class VerificationApiService extends BaseApiService {
         };
       }
       
-      // Update user to set is_active to true and clear verification token
+      // Update user to set is_active to true and clear verification token, including email
       await usersApi.updateUser(user.id, {
+        email: user.email, // Include email as required by Xano API
         is_active: true,
         verification_token: null
       });
