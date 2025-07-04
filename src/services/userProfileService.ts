@@ -99,7 +99,13 @@ export const userProfileService = {
       console.log('Updating user profile with data:', updateData);
       console.log('Role being sent:', updateData.role);
       
-      const updatedUser = await usersApi.updateUser(userId, updateData);
+      // Convert string userId to number for the API call
+      const numericUserId = parseInt(userId, 10);
+      if (isNaN(numericUserId)) {
+        throw new Error('Invalid user ID provided');
+      }
+      
+      const updatedUser = await usersApi.updateUser(numericUserId, updateData);
       return transformXanoUser(updatedUser);
     } catch (error) {
       console.error('Error updating user profile:', error);
