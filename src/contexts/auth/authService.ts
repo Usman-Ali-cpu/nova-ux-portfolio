@@ -79,22 +79,31 @@ export const authService = {
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
+      // Ensure we have a valid user ID from the response
+      if (!response.user?.id) {
+        throw new Error('Failed to create user - no user ID returned');
+      }
+      
+      const userId = response.user.id;
+      console.log('Step 2: Using user ID:', userId);
+      
       // Generate verification token and update user
-      console.log('Step 2: Generating verification token and updating user...');
-      const tokenResult = await verificationApi.generateVerificationToken(response.user?.id || email, email);
+      console.log('Step 3: Generating verification token...');
+      const tokenResult = await verificationApi.generateVerificationToken(userId, email);
       
       if (tokenResult.success) {
+        console.log('Step 4: Updating user with verification token...');
         // Update user with verification token and set is_active to false
-        await usersApi.updateUser(String(response.user?.id || email), {
+        await usersApi.updateUser(String(userId), {
           verification_token: tokenResult.token,
           is_active: false
         });
-        console.log('Step 2 SUCCESS: User updated with verification token');
+        console.log('Step 4 SUCCESS: User updated with verification token');
         
         // Send verification email
-        console.log('Step 3: Sending verification email...');
-        await verificationApi.sendVerificationEmail(email, response.user?.id || email);
-        console.log('Step 3 SUCCESS: Verification email sent');
+        console.log('Step 5: Sending verification email...');
+        await verificationApi.sendVerificationEmail(email, userId);
+        console.log('Step 5 SUCCESS: Verification email sent');
       }
       
       console.log('=== SIGNUP PROCESS COMPLETED - VERIFICATION REQUIRED ===');
@@ -136,17 +145,15 @@ export const authService = {
     }
   },
 
-  // Verify email with token using Xano user API
+  // Verify email with token
   verifyEmail: async (token: string): Promise<User> => {
     console.log('=== EMAIL VERIFICATION PROCESS STARTED ===');
     console.log('authService.verifyEmail called with token:', token);
     
     try {
-      console.log('Step 1: Finding user with verification token...');
+      console.log('Step 1: Validating verification token...');
       
-      // We need to find the user by verification token and update their status
-      // Since we can't directly query by verification_token, we'll use our verification service
-      // to validate the token and get the associated user info
+      // Validate the token and get the associated user info
       const verificationResult = await verificationApi.verifyUserWithToken(token);
       console.log('Step 1 SUCCESS: Token verification result:', verificationResult);
       
@@ -154,9 +161,11 @@ export const authService = {
         throw new Error(verificationResult.message || 'Invalid verification token');
       }
       
-      console.log('Step 2: Updating user status to active...');
+      const userId = verificationResult.user.id;
+      console.log('Step 2: Updating user status to active for user ID:', userId);
+      
       // Update the user to set is_active to true and clear verification_token
-      const updatedUser = await usersApi.updateUser(String(verificationResult.user.id), {
+      const updatedUser = await usersApi.updateUser(String(userId), {
         is_active: true,
         verification_token: null
       });
@@ -179,9 +188,9 @@ export const authService = {
     console.log('authService.resendVerification called with email:', email);
     
     try {
-      // For resend, we need to get the user ID first
-      // This might require an API call to get user by email
-      // For now, using email as fallback
+      // For resend, we need to get the user by email first
+      // This is a limitation - we don't have a direct way to get user by email
+      // For now, we'll use email as identifier in the verification service
       const response = await verificationApi.sendVerificationEmail(email, email);
       console.log('Resend verification response:', response);
       

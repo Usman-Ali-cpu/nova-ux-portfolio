@@ -10,6 +10,12 @@ class AuthApiService extends BaseApiService {
     }, AUTH_BASE_URL);
     
     console.log('Raw login response from Xano:', response);
+    
+    // Ensure the response has the expected structure
+    if (!response.user?.id) {
+      throw new Error('Invalid login response - missing user data');
+    }
+    
     return response;
   }
 
@@ -43,10 +49,19 @@ class AuthApiService extends BaseApiService {
 
     console.log('Final signup data being sent:', signupData);
 
-    return this.request<XanoAuthResponse>('/auth/signup', {
+    const response = await this.request<XanoAuthResponse>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(signupData),
     }, AUTH_BASE_URL);
+
+    console.log('Raw signup response from Xano:', response);
+    
+    // Ensure the response has the expected structure
+    if (!response.user?.id) {
+      throw new Error('Signup failed - no user ID returned from server');
+    }
+    
+    return response;
   }
 }
 

@@ -7,14 +7,14 @@ export interface XanoUser {
   business_name?: string;
   business_location?: string | { type: string; data: { lng: number; lat: number; } };
   business_phone?: string;
-  business_description?: string; // Add missing field
+  business_description?: string;
   instagram?: string;
   facebook?: string;
   twitter?: string;
   linkedin?: string;
   website?: string;
   is_active?: boolean;
-  verification_token?: string | null; // Add verification token field
+  verification_token?: string | null;
   pace_seconds_per_km?: number;
   experience_level?: string;
   running_goals?: string;
@@ -31,10 +31,10 @@ export interface XanoEvent {
   max_participants?: number;
   business_id: number;
   business_name: string;
-  event_location?: string | { type: string; data: { lng: number; lat: number; } }; // Support both string and object formats
+  event_location?: string | { type: string; data: { lng: number; lat: number; } };
   event_address: string;
   business_phone?: string;
-  whatsappGroupLink?: string; // Ensure this field is properly typed
+  whatsappGroupLink?: string;
 }
 
 export interface XanoRegistration {
@@ -56,13 +56,12 @@ export interface UploadResult {
   filesize: number;
 }
 
-// Add missing XanoAuthResponse interface
+// Updated XanoAuthResponse to ensure user is included
 export interface XanoAuthResponse {
   authToken: string;
-  user?: XanoUser;
+  user: XanoUser; // Make user required since we need the ID
 }
 
-// Add missing XanoBusinessPost interface
 export interface XanoImage {
   access: string;
   path: string;

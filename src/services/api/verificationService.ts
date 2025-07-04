@@ -43,7 +43,7 @@ class VerificationApiService extends BaseApiService {
    * Generate verification token and store in memory
    */
   async generateVerificationToken(userId: string | number, email: string): Promise<{ token: string; success: boolean }> {
-    console.log('VerificationApiService.generateVerificationToken: Generating token for user:', userId);
+    console.log('VerificationApiService.generateVerificationToken: Generating token for user:', userId, 'email:', email);
     
     try {
       // Clean up expired tokens first
@@ -54,15 +54,15 @@ class VerificationApiService extends BaseApiService {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + TOKEN_EXPIRATION_HOURS);
       
-      // Store the token
+      // Store the token with proper user ID
       verificationTokenStore[token] = {
-        userId,
+        userId: userId, // Keep the actual user ID (number or string)
         email,
         expiresAt,
         used: false
       };
       
-      console.log('Generated verification token:', token);
+      console.log('Generated verification token:', token, 'for user ID:', userId);
       return { token, success: true };
       
     } catch (error) {
@@ -113,7 +113,7 @@ class VerificationApiService extends BaseApiService {
         success: true, 
         message: 'Email verified successfully',
         user: {
-          id: tokenData.userId,
+          id: tokenData.userId, // This should be the actual numeric user ID
           email: tokenData.email,
           verified: true
         }
@@ -129,13 +129,10 @@ class VerificationApiService extends BaseApiService {
   }
 
   /**
-   * Send verification email using SendGrid
-   * @param email The email address to send the verification to
-   * @param userId The user ID to associate with this verification
-   * @returns Promise with success status and message
+   * Send verification email using external service
    */
   async sendVerificationEmail(email: string, userId: string | number): Promise<{ success: boolean; message: string }> {
-    console.log('VerificationApiService.sendVerificationEmail: Sending verification email to:', email);
+    console.log('VerificationApiService.sendVerificationEmail: Sending verification email to:', email, 'for user ID:', userId);
     
     try {
       // Generate the verification token
@@ -173,15 +170,12 @@ class VerificationApiService extends BaseApiService {
         }
     
         const data = await response.json();
-        console.log(data.message); // "Email sent successfully"
-        return data;
+        console.log('Email service response:', data.message);
+        return { success: true, message: 'Verification email sent successfully' };
       } catch (error) {
-        console.error('Error:', error.message);
+        console.error('Error sending email:', error);
         throw error;
       }
-
-      console.log('Verification email sent successfully');
-      return { success: true, message: 'Verification email sent successfully' };
       
     } catch (error) {
       console.error('VerificationApiService.sendVerificationEmail error:', error);
