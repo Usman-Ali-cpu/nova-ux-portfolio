@@ -1,4 +1,3 @@
-
 export interface XanoUser {
   id: number;
   created_at: number;
@@ -15,6 +14,7 @@ export interface XanoUser {
   linkedin?: string;
   website?: string;
   is_active?: boolean;
+  verification_token?: string | null; // Add verification token field
   pace_seconds_per_km?: number;
   experience_level?: string;
   running_goals?: string;
