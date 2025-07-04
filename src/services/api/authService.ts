@@ -31,7 +31,7 @@ class AuthApiService extends BaseApiService {
       latitude?: number;
       longitude?: number;
     }
-  ): Promise<XanoAuthResponse> {
+  ): Promise<{ authToken: string; email: string }> {
     // Always include all fields that the API expects, but use empty values for runners
     const signupData: any = {
       email,
@@ -51,31 +51,24 @@ class AuthApiService extends BaseApiService {
 
     console.log('Final signup data being sent:', signupData);
 
-    const response = await this.request<any>('/auth/signup', {
+    const response = await this.request<{ authToken: string }>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(signupData),
     }, AUTH_BASE_URL);
 
     console.log('Raw signup response from Xano:', response);
     
-    // The auth/signup endpoint might return a different structure
-    // Let's handle both possible response formats
-    if (response.user && response.user.id) {
-      // Standard format with user object
-      return {
-        authToken: response.authToken || '',
-        user: response.user
-      };
-    } else if (response.id) {
-      // Direct user object format
-      return {
-        authToken: response.authToken || '',
-        user: response
-      };
-    } else {
-      console.error('Unexpected signup response format:', response);
-      throw new Error('Signup failed - unexpected response format from server');
+    // The auth/signup endpoint only returns an authToken
+    if (!response.authToken) {
+      console.error('Signup failed - no auth token returned:', response);
+      throw new Error('Signup failed - no authentication token returned from server');
     }
+    
+    // Return the token and email for verification process
+    return {
+      authToken: response.authToken,
+      email: email
+    };
   }
 }
 

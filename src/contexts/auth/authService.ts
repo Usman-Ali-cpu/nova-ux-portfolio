@@ -68,19 +68,26 @@ export const authService = {
       const response = await authApi.signup(email, password, name, role, businessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
-      // Ensure we have a valid user from the response
-      if (!response.user || !response.user.id) {
-        console.error('Step 1 FAILED: No user data in response:', response);
-        throw new Error('Signup failed - no user data returned from server');
-      }
+      // Store the auth token temporarily to fetch user data
+      localStorage.setItem('xanoAuthToken', response.authToken);
+      console.log('Step 2: Stored auth token temporarily');
       
-      const userId = response.user.id;
-      console.log('Step 2: Using user ID:', userId);
+      // Now fetch the user data using the auth token to get the user ID
+      console.log('Step 3: Fetching user data to get user ID...');
+      const userData = await usersApi.getCurrentUser();
+      console.log('Step 3 SUCCESS: User data fetched:', userData);
+      
+      // Remove the token since user is not verified yet
+      localStorage.removeItem('xanoAuthToken');
+      console.log('Step 4: Removed auth token (user not verified yet)');
+      
+      const userId = userData.id;
+      console.log('Step 5: Using user ID:', userId);
       
       // Send verification email (this will also generate token and set is_active = false)
-      console.log('Step 3: Sending verification email...');
+      console.log('Step 6: Sending verification email...');
       await verificationApi.sendVerificationEmail(email, userId);
-      console.log('Step 3 SUCCESS: Verification email sent');
+      console.log('Step 6 SUCCESS: Verification email sent');
       
       console.log('=== SIGNUP PROCESS COMPLETED - VERIFICATION REQUIRED ===');
       return { requiresVerification: true, email };
@@ -88,6 +95,9 @@ export const authService = {
     } catch (error) {
       console.error('=== SIGNUP PROCESS FAILED ===');
       console.error('authService.signup error:', error);
+      
+      // Clean up any stored tokens
+      localStorage.removeItem('xanoAuthToken');
       
       // Provide more specific error messages
       if (error instanceof Error) {
