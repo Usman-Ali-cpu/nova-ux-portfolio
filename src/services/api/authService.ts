@@ -1,19 +1,22 @@
 
 import { BaseApiService, AUTH_BASE_URL } from './baseApi';
-import { XanoAuthResponse } from './types';
+
+interface LoginResponse {
+  authToken: string;
+}
 
 class AuthApiService extends BaseApiService {
-  async login(email: string, password: string): Promise<XanoAuthResponse> {
-    const response = await this.request<XanoAuthResponse>('/auth/login', {
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const response = await this.request<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, AUTH_BASE_URL);
     
     console.log('Raw login response from Xano:', response);
     
-    // Ensure the response has the expected structure
-    if (!response.user?.id) {
-      throw new Error('Invalid login response - missing user data');
+    // The login endpoint only returns an authToken
+    if (!response.authToken) {
+      throw new Error('Invalid login response - no authentication token returned');
     }
     
     return response;
