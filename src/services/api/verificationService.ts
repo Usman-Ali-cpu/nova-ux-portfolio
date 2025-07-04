@@ -27,8 +27,9 @@ class VerificationApiService extends BaseApiService {
       // Generate a new token
       const token = this.generateToken();
       
-      // Update user in Xano with the verification token and set is_active to false
+      // Update user in Xano with the verification token, set is_active to false, and include email
       await usersApi.updateUser(userId, {
+        email: email, // Include email as required by Xano API
         verification_token: token,
         is_active: false
       });
