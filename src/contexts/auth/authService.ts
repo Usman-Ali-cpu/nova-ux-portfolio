@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { User, UserRole } from './types';
 import { authApi, usersApi } from '@/services/api';
@@ -28,7 +29,12 @@ export const authService = {
       console.log('Step 3 DEBUG: is_active value:', userData.is_active, 'type:', typeof userData.is_active);
       
       // Check if user account is active - handle different data types
-      const isActive = userData.is_active === true || userData.is_active === 1 || userData.is_active === '1' || userData.is_active === 'true';
+      const isActiveValue = userData.is_active;
+      const isActive = isActiveValue === true || 
+                      isActiveValue === 1 || 
+                      isActiveValue === '1' || 
+                      isActiveValue === 'true' ||
+                      String(isActiveValue).toLowerCase() === 'true';
       
       if (!isActive) {
         console.log('Step 4: Login failed - user account is not active, is_active value:', userData.is_active);
