@@ -13,23 +13,26 @@ export const authService = {
       console.log('authService.login called with:', email);
       
       console.log('Step 1: Calling authApi.login...');
+      // Step 1: Authenticate and get auth token
+      console.log('Step 1: Authenticating user...');
       const response = await authApi.login(email, password);
-      console.log('Step 1 SUCCESS: authApi.login response:', response);
+      console.log('Step 1 SUCCESS: Authentication successful, auth token received');
       
       // Store auth token for future requests
       localStorage.setItem('xanoAuthToken', response.authToken);
-      console.log('Step 2 SUCCESS: Stored auth token');
+      console.log('Step 2: Stored auth token');
       
-      // Now fetch user data using the auth token
-      console.log('Step 3: Fetching user data with auth token...');
+      // Fetch the user data to check verification status
+      console.log('Step 3: Fetching user verification status...');
       const userData = await usersApi.getCurrentUser();
-      console.log('Step 3 SUCCESS: Raw user data from API:', userData);
+      console.log('Step 3 SUCCESS: User data retrieved');
       
-      // Check if user email is verified (is_active must be true)
-      if (userData.is_active === false) {
-        console.log('Step 4: User email not verified (is_active = false)');
+      // Check if user account is active
+      if (userData.is_active !== true) {
+        console.log('Step 4: Login failed - user account is not active');
+        // Clear the auth token since login is not allowed
         localStorage.removeItem('xanoAuthToken');
-        throw new Error('Please verify your email before logging in. Check your inbox for the verification link.');
+        throw new Error('Please verify your email before logging in. Check your inbox for the verification link or contact support if you need assistance.');
       }
       
       console.log('Step 4: User is verified, transforming user data...');
@@ -64,8 +67,36 @@ export const authService = {
     console.log('authService.signup called with:', { name, email, role, businessDetails });
     
     try {
-      console.log('Step 1: Calling authApi.signup...');
-      const response = await authApi.signup(email, password, name, role, businessDetails);
+      // Prepare business details with proper location format
+      let formattedBusinessDetails = businessDetails ? { ...businessDetails } : undefined;
+      
+      if (role === 'business' && formattedBusinessDetails) {
+        // If we have valid coordinates, use them
+        const hasValidCoords = 
+          formattedBusinessDetails.latitude !== undefined && 
+          formattedBusinessDetails.longitude !== undefined &&
+          !isNaN(formattedBusinessDetails.latitude) &&
+          !isNaN(formattedBusinessDetails.longitude);
+        
+        if (!hasValidCoords) {
+          console.warn('No valid coordinates provided, using random coordinates as fallback');
+          // Generate random coordinates within a reasonable range
+          // These are centered around a default location with some randomization
+          const centerLat = 40.4168; // Example: Madrid, Spain
+          const centerLon = -3.7038;
+          const randomOffset = () => (Math.random() - 0.5) * 0.1; // ~10km radius
+          
+          formattedBusinessDetails.latitude = centerLat + randomOffset();
+          formattedBusinessDetails.longitude = centerLon + randomOffset();
+          console.log('Using fallback coordinates:', { 
+            lat: formattedBusinessDetails.latitude, 
+            lon: formattedBusinessDetails.longitude 
+          });
+        }
+      }
+      
+      console.log('Step 1: Calling authApi.signup with formatted details...');
+      const response = await authApi.signup(email, password, name, role, formattedBusinessDetails);
       console.log('Step 1 SUCCESS: authApi.signup response:', response);
       
       // Store the auth token temporarily to fetch user data

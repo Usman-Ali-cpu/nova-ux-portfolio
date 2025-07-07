@@ -35,22 +35,36 @@ class AuthApiService extends BaseApiService {
       longitude?: number;
     }
   ): Promise<{ authToken: string; email: string }> {
-    // Always include all fields that the API expects, but use empty values for runners
+    // Prepare the base signup data
     const signupData: any = {
       email,
       password,
       name,
       role,
       phone: role === 'business' ? (businessDetails?.businessPhone || '') : '',
-      business_name: role === 'business' ? (businessDetails?.businessName || '') : '',
-      business_location: role === 'business' ? (
-        businessDetails?.latitude && businessDetails?.longitude 
-          ? `POINT(${businessDetails.longitude} ${businessDetails.latitude})`
-          : businessDetails?.businessLocation || ''
-      ) : '',
       // Set is_active to false by default - user must verify email first
       is_active: false
     };
+
+    // Add business-specific fields if this is a business account
+    if (role === 'business' && businessDetails) {
+      // Always include the business name and phone
+      signupData.business_name = businessDetails.businessName || '';
+      signupData.business_phone = businessDetails.businessPhone || '';
+      
+      // Format the business location as a POINT if we have coordinates
+      if (businessDetails.latitude !== undefined && 
+          businessDetails.longitude !== undefined &&
+          !isNaN(businessDetails.latitude) && 
+          !isNaN(businessDetails.longitude)) {
+            
+        // Format as POINT(longitude latitude) for PostGIS
+        signupData.business_location = `POINT(${businessDetails.longitude} ${businessDetails.latitude})`;
+        console.log('Formatted business location as POINT:', signupData.business_location);
+      } else {
+        console.warn('No valid coordinates provided for business location');
+      }
+    }
 
     console.log('Final signup data being sent:', signupData);
 

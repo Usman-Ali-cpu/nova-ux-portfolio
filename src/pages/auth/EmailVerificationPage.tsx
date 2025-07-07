@@ -137,7 +137,7 @@ const EmailVerificationPage = () => {
         </p>
         
         <div className="space-y-3">
-          <Button 
+          {/* <Button 
             onClick={handleResendEmail} 
             disabled={isResending}
             variant="outline"
@@ -151,7 +151,7 @@ const EmailVerificationPage = () => {
             ) : (
               'Resend Verification Email'
             )}
-          </Button>
+          </Button> */}
           
           <Button 
             variant="ghost" 
