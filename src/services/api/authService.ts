@@ -46,9 +46,9 @@ class AuthApiService extends BaseApiService {
       is_active: false
     };
 
-    // Add business-specific fields if this is a business account
+    // Add role-specific fields
     if (role === 'business' && businessDetails) {
-      // Always include the business name and phone
+      // Business account specific fields
       signupData.business_name = businessDetails.businessName || '';
       signupData.business_phone = businessDetails.businessPhone || '';
       
@@ -64,6 +64,10 @@ class AuthApiService extends BaseApiService {
       } else {
         console.warn('No valid coordinates provided for business location');
       }
+    } else if (role === 'runner') {
+      // For runners, set a dummy location (centered at 0,0)
+      signupData.business_location = 'POINT(0 0)';
+      console.log('Setting dummy location for runner');
     }
 
     console.log('Final signup data being sent:', signupData);
