@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { User, UserRole } from './types';
 import { authApi, usersApi } from '@/services/api';
@@ -25,11 +24,14 @@ export const authService = {
       // Fetch the user data to check verification status
       console.log('Step 3: Fetching user verification status...');
       const userData = await usersApi.getCurrentUser();
-      console.log('Step 3 SUCCESS: User data retrieved');
+      console.log('Step 3 SUCCESS: User data retrieved', userData);
+      console.log('Step 3 DEBUG: is_active value:', userData.is_active, 'type:', typeof userData.is_active);
       
-      // Check if user account is active
-      if (userData.is_active !== true) {
-        console.log('Step 4: Login failed - user account is not active');
+      // Check if user account is active - handle different data types
+      const isActive = userData.is_active === true || userData.is_active === 1 || userData.is_active === '1' || userData.is_active === 'true';
+      
+      if (!isActive) {
+        console.log('Step 4: Login failed - user account is not active, is_active value:', userData.is_active);
         // Clear the auth token since login is not allowed
         localStorage.removeItem('xanoAuthToken');
         throw new Error('Please verify your email before logging in. Check your inbox for the verification link or contact support if you need assistance.');
