@@ -193,6 +193,7 @@ export const transformXanoUser = (xanoUser: XanoUser): User => {
         instagram: xanoUser.instagram || '',
         facebook: xanoUser.facebook || '',
         twitter: xanoUser.twitter || '',
+        google_review: xanoUser.google_review || '',
       }
     };
   } else if (xanoUser.role === 'runner') {

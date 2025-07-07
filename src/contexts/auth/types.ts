@@ -29,6 +29,7 @@ export interface BusinessDetails {
     instagram?: string;
     facebook?: string;
     twitter?: string;
+    google_review?: string;
   };
 }
 

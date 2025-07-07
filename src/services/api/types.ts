@@ -13,6 +13,7 @@ export interface XanoUser {
   twitter?: string;
   linkedin?: string;
   website?: string;
+  google_review?: string;
   is_active?: boolean;
   verification_token?: string | null;
   pace_seconds_per_km?: number;

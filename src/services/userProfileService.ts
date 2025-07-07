@@ -19,6 +19,7 @@ export interface UpdateProfileData {
   facebook?: string;
   twitter?: string;
   linkedin?: string;
+  google_review?: string;
   businessDescription?: string;
   role?: UserRole;
 }
@@ -94,6 +95,9 @@ export const userProfileService = {
       }
       if (profileData.linkedin) {
         updateData.linkedin = profileData.linkedin;
+      }
+      if (profileData.google_review) {
+        updateData.google_review = profileData.google_review;
       }
 
       console.log('Updating user profile with data:', updateData);

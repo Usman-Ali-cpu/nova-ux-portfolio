@@ -41,6 +41,7 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
     instagram: user.businessDetails?.socialLinks?.instagram || '',
     facebook: user.businessDetails?.socialLinks?.facebook || '',
     twitter: user.businessDetails?.socialLinks?.twitter || '',
+    google_review: user.businessDetails?.socialLinks?.google_review || '',
     address: user.businessDetails?.businessLocation || '',
   });
 
@@ -80,6 +81,7 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
         instagram: formData.instagram,
         facebook: formData.facebook,
         twitter: formData.twitter,
+        google_review: formData.google_review,
       };
 
       console.log('Profile data to update:', profileData);
@@ -274,6 +276,16 @@ const BusinessProfileEditDialog: React.FC<BusinessProfileEditDialogProps> = ({
                 value={formData.twitter}
                 onChange={(e) => handleChange('twitter', e.target.value)}
                 placeholder="https://twitter.com/yourbusiness"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="google_review">Google Reviews</Label>
+              <Input
+                id="google_review"
+                value={formData.google_review}
+                onChange={(e) => handleChange('google_review', e.target.value)}
+                placeholder="https://g.page/yourbusiness/review"
               />
             </div>
           </div>

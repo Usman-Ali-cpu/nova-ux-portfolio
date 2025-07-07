@@ -79,6 +79,7 @@ const PublicBusinessProfilePage = () => {
       case 'instagram': return Instagram;
       case 'facebook': return Facebook;
       case 'twitter': return Twitter;
+      case 'google_review': return null; // No icon for Google Review
       default: return Globe;
     }
   };
@@ -206,8 +207,8 @@ const PublicBusinessProfilePage = () => {
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
                         >
-                          <IconComponent className="w-4 h-4" />
-                          {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          {IconComponent && <IconComponent className="w-4 h-4" />}
+                          {platform === 'google_review' ? 'Leave a Review' : platform.charAt(0).toUpperCase() + platform.slice(1)}
                         </a>
                       );
                     })}
