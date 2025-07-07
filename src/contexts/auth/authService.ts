@@ -30,10 +30,7 @@ export const authService = {
       
       // Check if user account is active - handle different data types
       const isActiveValue = userData.is_active;
-      const isActive = isActiveValue === true || 
-                      isActiveValue === 1 || 
-                      isActiveValue === '1' || 
-                      isActiveValue === 'true' ||
+      const isActive = isActiveValue === true ||
                       String(isActiveValue).toLowerCase() === 'true';
       
       if (!isActive) {
